@@ -1,12 +1,23 @@
 // ABIXMART mock product data — frontend prototype.
 // Real product database / Wix store back-office wired in the next phase.
 
+import heroJarCutout from '@/assets/products/shilajit-jar-cutout.png';
+import heroBg from '@/assets/hero/himalayan-hero-bg.png';
+
+// NOTE: HERO_IMAGE (Base44-generated) is not used anywhere in the hero.
 export const HERO_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/8d3bf021c_generated_a2b6155e.jpg";
 export const PRODUCT_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/250b02195_generated_3433b404.jpg";
 export const SOURCING_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/3fd09bfe9_generated_c687c2de.jpg";
 export const PURIFICATION_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/e96b0f8b3_generated_efecda09.jpg";
 export const RITUAL_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/9bfa04525_generated_0ecb7692.jpg";
 export const MIST_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/286eac8b6_generated_e48ac1e8.jpg";
+
+// The ONLY approved product asset used in the hero — real ABIXMART Shilajit
+// jar, background-removed from the supplied product photo. Transparent PNG.
+export const HERO_PRODUCT_IMAGE = heroJarCutout;
+
+// Real Himalayan environment photo for the hero background (supplied by you).
+export const HERO_BACKGROUND_IMAGE = heroBg;
 
 export const featuredProduct = {
   name: "ABIXMART Himalayan Shilajit",
@@ -37,7 +48,6 @@ export const categories = [
   { key: "herbs", label: "Herbal Wellness" },
 ];
 
-// Unified product list. status: 'available' | 'coming_soon'
 export const products = [
   {
     id: "shilajit-resin",
@@ -115,30 +125,10 @@ export const products = [
 ];
 
 export const discoveryChoices = [
-  {
-    key: "energy",
-    title: "Energy & Vitality",
-    line: "For the rhythm of a full day.",
-    note: "Shilajit has been traditionally used to support vitality and stamina.",
-  },
-  {
-    key: "wellness",
-    title: "Daily Wellness",
-    line: "A ritual for everyday balance.",
-    note: "A small daily practice, woven into the way you already live.",
-  },
-  {
-    key: "focus",
-    title: "Focus & Balance",
-    line: "For a steady, clear day.",
-    note: "Traditionally associated with resilience and recovery.",
-  },
-  {
-    key: "exploring",
-    title: "Explore Natural Wellness",
-    line: "No rush. Begin where you are.",
-    note: "Start with the story. Understand the source before you decide.",
-  },
+  { key: "energy", title: "Energy & Vitality", line: "For the rhythm of a full day.", note: "Shilajit has been traditionally used to support vitality and stamina." },
+  { key: "wellness", title: "Daily Wellness", line: "A ritual for everyday balance.", note: "A small daily practice, woven into the way you already live." },
+  { key: "focus", title: "Focus & Balance", line: "For a steady, clear day.", note: "Traditionally associated with resilience and recovery." },
+  { key: "exploring", title: "Explore Natural Wellness", line: "No rush. Begin where you are.", note: "Start with the story. Understand the source before you decide." },
 ];
 
 export const storyStages = [
@@ -170,30 +160,10 @@ export const trustPillars = [
 ];
 
 export const openProductTabs = [
-  {
-    key: "source",
-    label: "Source",
-    title: "From the high Himalayas",
-    body: "Our Shilajit is gathered from high-altitude Himalayan rock, where it forms slowly over centuries. We collect in small quantities, with respect for the mountain.",
-  },
-  {
-    key: "process",
-    label: "Process",
-    title: "Ten stages, nothing hidden",
-    body: "From sourcing to sealing, every jar passes through ten deliberate stages of traditional purification and careful handling — shown openly, not summarised away.",
-  },
-  {
-    key: "quality",
-    label: "Quality",
-    title: "Reviewed before it reaches you",
-    body: "Each batch is checked for quality and consistency. We focus on what we can verify, and we don't make claims we can't stand behind.",
-  },
-  {
-    key: "use",
-    label: "How to use",
-    title: "A simple daily ritual",
-    body: "Dissolve a pea-sized portion in warm water or milk, once a day. Keep it simple. Keep it consistent. Let it become part of your morning.",
-  },
+  { key: "source", label: "Source", title: "From the high Himalayas", body: "Our Shilajit is gathered from high-altitude Himalayan rock, where it forms slowly over centuries. We collect in small quantities, with respect for the mountain." },
+  { key: "process", label: "Process", title: "Ten stages, nothing hidden", body: "From sourcing to sealing, every jar passes through ten deliberate stages of traditional purification and careful handling — shown openly, not summarised away." },
+  { key: "quality", label: "Quality", title: "Reviewed before it reaches you", body: "Each batch is checked for quality and consistency. We focus on what we can verify, and we don't make claims we can't stand behind." },
+  { key: "use", label: "How to use", title: "A simple daily ritual", body: "Dissolve a pea-sized portion in warm water or milk, once a day. Keep it simple. Keep it consistent. Let it become part of your morning." },
 ];
 
 export const upcomingProducts = [
@@ -210,42 +180,15 @@ export const ritualBundles = [
 ];
 
 export const faqs = [
-  {
-    q: "What is Shilajit?",
-    a: "Shilajit is a natural resin that forms over centuries in the rocks of the high Himalayas. It has been used in traditional Ayurvedic practice for generations. We do not make medical claims about its effects.",
-  },
-  {
-    q: "How do I use it?",
-    a: "Dissolve a pea-sized portion (around 250–300mg) in warm water or milk, once daily. If you are new to it, start small and be consistent.",
-  },
-  {
-    q: "How much should I use?",
-    a: "A pea-sized portion, roughly 250–300mg, once a day. We recommend consistency over quantity.",
-  },
-  {
-    q: "How should I store it?",
-    a: "Store in a cool, dry place away from direct sunlight. Keep the lid sealed between uses.",
-  },
-  {
-    q: "What about shipping?",
-    a: "We ship across India. Orders are typically dispatched within 1–2 business days. Delivery times vary by location.",
-  },
-  {
-    q: "What is your returns policy?",
-    a: "If you receive a damaged or incorrect item, contact us within 48 hours and we will make it right. For hygiene reasons, opened product jars cannot be returned.",
-  },
-  {
-    q: "What payment methods do you accept?",
-    a: "The simplified checkout on this site is a prototype. When the full store launches, we will support standard payment methods including cards, UPI, and wallets.",
-  },
-  {
-    q: "How do I know the product is authentic?",
-    a: "Every jar is sealed and passes through our ten-stage process, including a final check before it ships. We focus on transparency rather than claims.",
-  },
-  {
-    q: "Is Shilajit safe for everyone?",
-    a: "Shilajit is a traditional supplement, not a medicine. If you are pregnant, nursing, on medication, or managing a health condition, please consult a qualified healthcare professional before use.",
-  },
+  { q: "What is Shilajit?", a: "Shilajit is a natural resin that forms over centuries in the rocks of the high Himalayas. It has been used in traditional Ayurvedic practice for generations. We do not make medical claims about its effects." },
+  { q: "How do I use it?", a: "Dissolve a pea-sized portion (around 250–300mg) in warm water or milk, once daily. If you are new to it, start small and be consistent." },
+  { q: "How much should I use?", a: "A pea-sized portion, roughly 250–300mg, once a day. We recommend consistency over quantity." },
+  { q: "How should I store it?", a: "Store in a cool, dry place away from direct sunlight. Keep the lid sealed between uses." },
+  { q: "What about shipping?", a: "We ship across India. Orders are typically dispatched within 1–2 business days. Delivery times vary by location." },
+  { q: "What is your returns policy?", a: "If you receive a damaged or incorrect item, contact us within 48 hours and we will make it right. For hygiene reasons, opened product jars cannot be returned." },
+  { q: "What payment methods do you accept?", a: "The simplified checkout on this site is a prototype. When the full store launches, we will support standard payment methods including cards, UPI, and wallets." },
+  { q: "How do I know the product is authentic?", a: "Every jar is sealed and passes through our ten-stage process, including a final check before it ships. We focus on transparency rather than claims." },
+  { q: "Is Shilajit safe for everyone?", a: "Shilajit is a traditional supplement, not a medicine. If you are pregnant, nursing, on medication, or managing a health condition, please consult a qualified healthcare professional before use." },
 ];
 
 export const supportOptions = [
@@ -257,7 +200,6 @@ export const supportOptions = [
   { key: "talk", label: "Talk to ABIXMART", desc: "Reach us on WhatsApp or email.", to: "/support#contact", icon: "MessageCircle" },
 ];
 
-// Mock order tracking stages for the prototype.
 export const orderSteps = [
   { key: "placed", label: "Order Placed", desc: "We received your order." },
   { key: "packed", label: "Packed", desc: "Your jar is filled, sealed and packed." },
