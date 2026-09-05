@@ -75,6 +75,18 @@
 @layer utilities {
   .font-display { font-family: var(--font-display); }
   .font-heading { font-family: var(--font-heading); }
+
+  /* Modern e-commerce numeral style for prices, quantities and other
+     prominent UI numbers — deliberately sans-serif (not the editorial
+     Cormorant Garamond used for headings) so digits and the ₹ symbol
+     sit cleanly together. Moderately bold, not decorative. */
+  .font-price {
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "cv01" 0, "ss01" 0;
+  }
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
 

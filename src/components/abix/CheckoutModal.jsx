@@ -113,7 +113,7 @@ export default function CheckoutModal() {
                           <p className="font-display text-lg text-greendark leading-tight">{productLabel}</p>
                           <p className="text-sm text-foreground/55">{featuredProduct.size} · Pure Resin</p>
                         </div>
-                        <span className="font-display text-xl text-greendark">₹{unit}</span>
+                        <span className="font-price text-xl text-greendark">₹{unit}</span>
                       </div>
                     </div>
                   )}
@@ -126,12 +126,12 @@ export default function CheckoutModal() {
                         <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="h-12 w-12 inline-flex items-center justify-center border border-greendark/25 text-greendark hover:bg-sand transition-colors">
                           <Minus size={18} />
                         </button>
-                        <span className="font-display text-5xl text-greendark w-16 text-center">{qty}</span>
+                        <span className="font-price text-5xl text-greendark w-16 text-center">{qty}</span>
                         <button onClick={() => setQty((q) => q + 1)} className="h-12 w-12 inline-flex items-center justify-center border border-greendark/25 text-greendark hover:bg-sand transition-colors">
                           <Plus size={18} />
                         </button>
                       </div>
-                      <p className="mt-6 text-center font-display text-2xl text-greendark">Total ₹{unit * qty}</p>
+                      <p className="mt-6 text-center font-price text-2xl text-greendark">Total ₹{unit * qty}</p>
                     </div>
                   )}
 
@@ -192,7 +192,7 @@ export default function CheckoutModal() {
                         <Row label="Payment" value={form.payment} />
                         <div className="border-t border-greendark/15 pt-3 flex items-center justify-between">
                           <span className="font-display text-lg text-greendark">Total</span>
-                          <span className="font-display text-2xl text-greendark">₹{total}</span>
+                          <span className="font-price text-2xl text-greendark">₹{total}</span>
                         </div>
                       </div>
                     </div>
@@ -266,7 +266,7 @@ function Confirmation({ form, total, qty, productLabel, onClose }) {
         Your order for {qty} jar{qty > 1 ? 's' : ''} of ABIXMART Shilajit is confirmed. We'll text updates to {form.phone}.
       </p>
       <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-sand text-greendark text-sm">
-        Order total <span className="font-display text-lg">₹{total}</span>
+        Order total <span className="font-price text-lg">₹{total}</span>
       </div>
       <p className="mt-5 text-xs text-foreground/40">A confirmation has been queued for the next phase.</p>
       <button onClick={onClose} className="mt-8 h-12 px-8 border border-greendark text-greendark text-[11px] font-semibold tracking-luxe-sm uppercase hover:bg-greendark hover:text-ivory transition-colors">

@@ -43,7 +43,7 @@ export default function FeaturedProduct() {
             </div>
             {/* floating seal */}
             <div className="absolute -bottom-6 -right-2 lg:-right-6 h-28 w-28 lg:h-32 lg:w-32 rounded-full bg-greendark text-ivory flex flex-col items-center justify-center text-center shadow-xl">
-              <span className="font-display text-3xl lg:text-4xl leading-none">{p.currency}{p.price}</span>
+              <span className="font-price text-3xl lg:text-4xl leading-none">{p.currency}{p.price}</span>
               <span className="text-[9px] uppercase tracking-luxe-sm mt-1 opacity-70">{p.size}</span>
             </div>
           </motion.div>
@@ -91,7 +91,7 @@ export default function FeaturedProduct() {
                 >
                   <Minus size={16} />
                 </button>
-                <span className="w-10 text-center font-display text-xl text-greendark">{qty}</span>
+                <span className="w-10 text-center font-price text-xl text-greendark">{qty}</span>
                 <button
                   onClick={() => setQty((q) => q + 1)}
                   className="h-full w-12 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors"
@@ -100,7 +100,7 @@ export default function FeaturedProduct() {
                   <Plus size={16} />
                 </button>
               </div>
-              <span className="font-display text-2xl text-greendark">{p.currency}{p.price * qty}</span>
+              <span className="font-price text-2xl text-greendark">{p.currency}{p.price * qty}</span>
             </div>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3">

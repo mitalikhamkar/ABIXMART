@@ -114,7 +114,7 @@ export default function Shop() {
                 <h3 className="mt-6 font-display text-3xl">{b.name}</h3>
                 <p className={`mt-2 text-sm ${b.highlight ? 'text-ivory/70' : 'text-foreground/60'}`}>{b.detail}</p>
                 <div className="mt-8 flex items-baseline gap-3">
-                  <span className="font-display text-4xl">₹{b.price}</span>
+                  <span className="font-price text-4xl">₹{b.price}</span>
                   <span className={`text-xs ${b.highlight ? 'text-ivory/60' : 'text-foreground/50'}`}>{b.note}</span>
                 </div>
                 <button

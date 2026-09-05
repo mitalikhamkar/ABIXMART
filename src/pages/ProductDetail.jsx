@@ -104,7 +104,7 @@ export default function ProductDetail() {
                         <span className="font-display text-lg text-greendark">{b.name}</span>
                         <span className="block text-xs text-foreground/50">{b.note}</span>
                       </span>
-                      <span className="font-display text-xl text-greendark">₹{b.price}</span>
+                      <span className="font-price text-xl text-greendark">₹{b.price}</span>
                     </button>
                   ))}
                 </div>
@@ -116,12 +116,12 @@ export default function ProductDetail() {
                   <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="h-full w-12 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors" aria-label="Decrease">
                     <Minus size={16} />
                   </button>
-                  <span className="w-10 text-center font-display text-xl text-greendark">{qty}</span>
+                  <span className="w-10 text-center font-price text-xl text-greendark">{qty}</span>
                   <button onClick={() => setQty((q) => q + 1)} className="h-full w-12 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors" aria-label="Increase">
                     <Plus size={16} />
                   </button>
                 </div>
-                <span className="font-display text-3xl text-greendark">{product.currency}{product.price * qty}</span>
+                <span className="font-price text-3xl text-greendark">{product.currency}{product.price * qty}</span>
                 <button onClick={() => toggleWishlist(product.id)} className="ml-auto h-14 w-14 inline-flex items-center justify-center border border-greendark/20 text-greendark hover:border-gold hover:text-gold transition-colors" aria-label="Wishlist">
                   <Heart size={20} className={isInWishlist(product.id) ? 'fill-gold text-gold' : ''} />
                 </button>

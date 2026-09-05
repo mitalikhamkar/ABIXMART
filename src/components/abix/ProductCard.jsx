@@ -45,7 +45,7 @@ export default function ProductCard({ product, index = 0 }) {
         <p className="mt-1.5 text-sm text-foreground/60 leading-relaxed">{product.shortDesc}</p>
 
         <div className="mt-5 flex items-center justify-between">
-          <span className="font-display text-2xl text-greendark">
+          <span className="font-price text-2xl text-greendark">
             {product.currency}{product.price}
           </span>
           <div className="flex items-center gap-2">

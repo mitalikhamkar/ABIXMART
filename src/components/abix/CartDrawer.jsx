@@ -67,12 +67,12 @@ export default function CartDrawer() {
                             <button onClick={() => updateQty(id, qty - 1)} className="h-9 w-9 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors">
                               <Minus size={14} />
                             </button>
-                            <span className="w-8 text-center font-display text-base text-greendark">{qty}</span>
+                            <span className="w-8 text-center font-price text-base text-greendark">{qty}</span>
                             <button onClick={() => updateQty(id, qty + 1)} className="h-9 w-9 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors">
                               <Plus size={14} />
                             </button>
                           </div>
-                          <span className="font-display text-lg text-greendark">{product.currency}{product.price * qty}</span>
+                          <span className="font-price text-lg text-greendark">{product.currency}{product.price * qty}</span>
                         </div>
                       </div>
                       <button onClick={() => removeFromCart(id)} className="text-xs text-foreground/40 hover:text-destructive transition-colors self-start">
@@ -85,7 +85,7 @@ export default function CartDrawer() {
                 <div className="px-6 py-5 border-t border-greendark/10 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-foreground/55">Total</span>
-                    <span className="font-display text-2xl text-greendark">₹{cartTotal}</span>
+                    <span className="font-price text-2xl text-greendark">₹{cartTotal}</span>
                   </div>
                   <button
                     onClick={() => openCheckout()}
