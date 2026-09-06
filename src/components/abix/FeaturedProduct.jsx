@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, Minus, Plus } from 'lucide-react';
 import Eyebrow from './Eyebrow';
-import { featuredProduct, PRODUCT_IMAGE } from '@/data/products';
+import { featuredProduct, HERO_PRODUCT_IMAGE } from '@/data/products';
 import { useShop } from '@/lib/ShopContext';
 
 export default function FeaturedProduct() {
@@ -33,11 +33,12 @@ export default function FeaturedProduct() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-sand">
+            <div className="relative aspect-[3/4] overflow-hidden bg-sand flex items-center justify-center">
               <img
-                src={PRODUCT_IMAGE}
+                src={HERO_PRODUCT_IMAGE}
                 alt={`${p.name} ${p.subtitle}`}
-                className="h-full w-full object-cover"
+                className="w-[70%] h-auto object-contain"
+                style={{ filter: 'drop-shadow(0 20px 26px rgba(0,0,0,0.25))' }}
               />
               <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
             </div>
