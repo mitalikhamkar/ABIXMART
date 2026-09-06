@@ -46,10 +46,16 @@ module.exports = {
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
             gold: 'hsl(var(--gold))',
+            'gold-light': 'hsl(var(--gold-light))',
             moss: 'hsl(var(--moss))',
             sand: 'hsl(var(--sand))',
             ivory: 'hsl(var(--ivory))',
             greendark: 'hsl(var(--green-deep))',
+            stone: 'hsl(var(--stone))',
+            'stone-dark': 'hsl(var(--stone-dark))',
+            charcoal: 'hsl(var(--charcoal))',
+            resin: 'hsl(var(--resin))',
+            'resin-light': 'hsl(var(--resin-light))',
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
@@ -72,6 +78,7 @@ module.exports = {
   			heading: ['var(--font-heading)'],
   			body: ['var(--font-body)'],
   			display: ['var(--font-display)'],
+  			grotesk: ['var(--font-grotesk)'],
   			mono: ['var(--font-mono)']
   		},
         letterSpacing: {

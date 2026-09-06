@@ -43,44 +43,31 @@ export default function FeaturedProduct() {
               <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
             </div>
             {/* floating seal */}
-            <div className="absolute -bottom-6 -right-2 lg:-right-6 h-28 w-28 lg:h-32 lg:w-32 rounded-full bg-greendark text-ivory flex flex-col items-center justify-center text-center shadow-xl">
+            <div className="absolute -bottom-6 -right-2 lg:-right-6 h-28 w-28 lg:h-32 lg:w-32 rounded-full bg-charcoal text-ivory flex flex-col items-center justify-center text-center shadow-xl">
               <span className="font-price text-3xl lg:text-4xl leading-none">{p.currency}{p.price}</span>
-              <span className="text-[9px] uppercase tracking-luxe-sm mt-1 opacity-70">{p.size}</span>
+              <span className="font-grotesk text-[9px] uppercase tracking-luxe-sm mt-1 opacity-70">{p.size}</span>
             </div>
           </motion.div>
 
           {/* Details */}
           <div>
-            <Eyebrow>Featured</Eyebrow>
+            <Eyebrow>What's Inside the Jar</Eyebrow>
             <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-[56px] text-greendark leading-[1.02] tracking-tight">
               {p.name}
             </h2>
-            <p className="mt-2 font-display text-2xl lg:text-3xl italic text-gold">{p.subtitle}</p>
+            <p className="mt-2 font-display text-2xl lg:text-3xl italic text-resin">{p.subtitle}</p>
 
             <p className="mt-7 text-foreground/70 text-lg leading-relaxed max-w-md">{p.description}</p>
 
             {/* facts */}
             <dl className="mt-9 grid grid-cols-2 gap-x-8 gap-y-5 max-w-md">
               {p.facts.map((f) => (
-                <div key={f.label} className="border-t border-greendark/15 pt-3">
-                  <dt className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">{f.label}</dt>
+                <div key={f.label} className="border-t border-stone/25 pt-3">
+                  <dt className="font-grotesk text-[10px] uppercase tracking-luxe-sm text-foreground/45">{f.label}</dt>
                   <dd className="mt-1 font-display text-lg text-greendark">{f.value}</dd>
                 </div>
               ))}
             </dl>
-
-            {/* how to use */}
-            <div className="mt-9">
-              <span className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">How to use</span>
-              <ul className="mt-3 space-y-2">
-                {p.howToUse.map((h) => (
-                  <li key={h} className="flex gap-3 text-sm text-foreground/75 leading-relaxed">
-                    <Check size={16} className="mt-0.5 shrink-0 text-gold" />
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
             {/* quantity + actions */}
             <div className="mt-10 flex items-center gap-5">

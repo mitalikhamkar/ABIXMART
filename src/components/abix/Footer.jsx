@@ -1,42 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Instagram, MessageCircle } from 'lucide-react';
+import { Instagram, MessageCircle } from 'lucide-react';
 import { footerLinks } from '@/data/products';
 
+// Minimal personality — plain utility footer. The one signup moment on the
+// page lives in AbixmartCircle; this doesn't repeat it.
 export default function Footer() {
-  const [done, setDone] = useState(false);
-
   return (
-    <footer id="footer" className="bg-greendark text-ivory pt-20 lg:pt-28 pb-10 grain">
+    <footer id="footer" className="bg-charcoal text-ivory pt-16 lg:pt-20 pb-10 grain">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        {/* Circle signup strip */}
-        <div className="grid lg:grid-cols-2 gap-10 items-center pb-16 border-b border-ivory/15">
-          <div>
-            <span className="font-display text-3xl lg:text-4xl">Stay close to the mountain.</span>
-            <p className="mt-3 text-ivory/60 max-w-sm">Join the ABIXMART Circle for new launches and wellness stories.</p>
-          </div>
-          {done ? (
-            <div className="flex items-center gap-2 text-gold">
-              <Check size={18} /> You're on the list.
-            </div>
-          ) : (
-            <form
-              onSubmit={(e) => { e.preventDefault(); setDone(true); }}
-              className="flex items-center gap-3 max-w-md lg:justify-self-end w-full"
-            >
-              <input
-                type="email"
-                required
-                placeholder="Email address"
-                className="flex-1 bg-transparent border-b border-ivory/30 py-3 text-ivory placeholder:text-ivory/40 focus:outline-none focus:border-gold transition-colors"
-              />
-              <button className="h-12 px-6 bg-ivory text-greendark text-[11px] font-semibold tracking-luxe-sm uppercase hover:bg-gold transition-colors">
-                Join
-              </button>
-            </form>
-          )}
-        </div>
-
         {/* Links */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-10 py-16">
           <div className="col-span-2 lg:col-span-2">

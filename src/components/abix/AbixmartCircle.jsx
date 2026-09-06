@@ -13,7 +13,7 @@ export default function AbixmartCircle() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <div className="lg:col-span-6">
-            <span className="text-[11px] font-medium uppercase tracking-luxe-sm text-gold">The ABIXMART Circle</span>
+            <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-resin">The ABIXMART Circle</span>
             <h2 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-greendark leading-[0.98] tracking-tight">
               Join the<br /><span className="italic text-gold">Circle.</span>
             </h2>
@@ -33,7 +33,7 @@ export default function AbixmartCircle() {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="bg-greendark text-ivory p-10 lg:p-14 grain">
+            <div className="bg-charcoal text-ivory p-10 lg:p-14 grain">
               {done ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.96 }}
@@ -55,7 +55,7 @@ export default function AbixmartCircle() {
                   viewport={{ once: true }}
                   onSubmit={(e) => { e.preventDefault(); setDone(true); }}
                 >
-                  <span className="text-[10px] uppercase tracking-luxe-sm text-gold">No noise. Only the good stuff.</span>
+                  <span className="font-grotesk text-[10px] uppercase tracking-luxe-sm text-gold-light">No noise. Only the good stuff.</span>
                   <h3 className="mt-4 font-display text-3xl lg:text-4xl leading-tight">
                     Join the Circle
                   </h3>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { upcomingProducts, MIST_IMAGE } from '@/data/products';
+import { upcomingProducts } from '@/data/products';
 
-// "Blurred Discovery" — upcoming products in the mist, with Notify Me.
+// Discovery/anticipation — a quiet charcoal surface, no green mist wash.
+// The "not yet" state is communicated by restraint (muted stone tiles),
+// not by a decorative fog image.
 export default function WhatsGrowingNext() {
   const [submitted, setSubmitted] = useState({});
 
@@ -13,15 +15,10 @@ export default function WhatsGrowingNext() {
   };
 
   return (
-    <section id="growing" className="relative bg-greendark py-24 lg:py-36 overflow-hidden grain">
-      <div className="absolute inset-0 opacity-20">
-        <img src={MIST_IMAGE} alt="" className="h-full w-full object-cover" />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-greendark via-greendark/85 to-greendark" />
-
+    <section id="growing" className="relative bg-charcoal py-24 lg:py-36 overflow-hidden grain">
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
         <div className="max-w-2xl mb-14 lg:mb-20">
-          <span className="text-[11px] font-medium uppercase tracking-luxe-sm text-gold">The Garden Ahead</span>
+          <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-gold-light">What's Next</span>
           <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-ivory leading-[1.02] tracking-tight">
             What's growing next.
           </h2>
@@ -41,11 +38,11 @@ export default function WhatsGrowingNext() {
               className="group relative bg-ivory/5 border border-ivory/15 backdrop-blur-sm p-7 flex flex-col hover:bg-ivory/10 transition-colors duration-500"
             >
               <div className="h-40 mb-6 overflow-hidden">
-                <div className="h-full w-full bg-gradient-to-br from-moss/40 to-greendark/60 flex items-center justify-center">
+                <div className="h-full w-full bg-gradient-to-br from-stone-dark/50 to-charcoal flex items-center justify-center">
                   <span className="font-display text-6xl text-ivory/25 italic">{p.name[0]}</span>
                 </div>
               </div>
-              <span className="text-[10px] uppercase tracking-luxe-sm text-gold">{p.status}</span>
+              <span className="font-grotesk text-[10px] uppercase tracking-luxe-sm text-gold-light">{p.status}</span>
               <h3 className="mt-2 font-display text-2xl text-ivory">{p.name}</h3>
               <p className="mt-1 text-sm text-ivory/60 leading-relaxed">{p.note}</p>
 
@@ -75,7 +72,7 @@ export default function WhatsGrowingNext() {
                       />
                       <button
                         type="submit"
-                        className="text-[10px] uppercase tracking-luxe-sm text-gold hover:text-ivory transition-colors whitespace-nowrap"
+                        className="font-grotesk text-[10px] uppercase tracking-luxe-sm text-gold-light hover:text-ivory transition-colors whitespace-nowrap"
                       >
                         Notify me →
                       </button>

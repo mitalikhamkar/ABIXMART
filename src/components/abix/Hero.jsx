@@ -38,7 +38,7 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="top"
-      className="relative min-h-[100svh] w-full overflow-hidden bg-greendark grain flex flex-col"
+      className="relative min-h-[100svh] w-full overflow-hidden bg-charcoal grain flex flex-col"
     >
       {/* Environment — real Himalayan photo. Initial hidden state is set
           entirely by GSAP (gsap.set in useHeroIntro), never via a React

@@ -10,7 +10,7 @@ export default function RitualOffers() {
     <section id="offers" className="bg-sand py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="text-center max-w-2xl mx-auto mb-14 lg:mb-20">
-          <span className="text-[11px] font-medium uppercase tracking-luxe-sm text-gold">Start your ritual</span>
+          <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-resin">Start your ritual</span>
           <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-greendark leading-[1.02] tracking-tight">
             Choose your rhythm.
           </h2>
@@ -29,11 +29,11 @@ export default function RitualOffers() {
               }`}
             >
               {b.highlight && (
-                <span className="absolute top-6 right-6 text-[9px] uppercase tracking-luxe-sm text-gold">
+                <span className="absolute top-6 right-6 font-grotesk text-[9px] uppercase tracking-luxe-sm text-gold-light">
                   Most chosen
                 </span>
               )}
-              <span className={`font-display text-6xl leading-none ${b.highlight ? 'text-ivory/25' : 'text-greendark/15'}`}>
+              <span className={`font-grotesk text-6xl font-medium leading-none ${b.highlight ? 'text-ivory/25' : 'text-greendark/15'}`}>
                 0{i + 1}
               </span>
               <h3 className="mt-6 font-display text-3xl">{b.name}</h3>

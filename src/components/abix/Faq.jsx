@@ -10,12 +10,16 @@ export default function Faq() {
     <section id="faq" className="bg-ivory py-24 lg:py-36 border-t border-greendark/5">
       <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-12 gap-12 lg:gap-16">
         <div className="lg:col-span-4">
-          <span className="text-[11px] font-medium uppercase tracking-luxe-sm text-gold">Questions</span>
+          <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-resin">Questions</span>
           <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-greendark leading-[1.02] tracking-tight">
             Honest answers.
           </h2>
           <p className="mt-6 text-foreground/60 leading-relaxed">
             If something isn't covered here, the ABIXMART Assist is always one tap away.
+          </p>
+          <p className="mt-4 text-sm text-foreground/45 leading-relaxed">
+            ABIXMART is just beginning — genuine customer reviews are being collected and will appear here
+            unedited once they're ready. No invented testimonials, no bought stars.
           </p>
         </div>
 

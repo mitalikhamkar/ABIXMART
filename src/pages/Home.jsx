@@ -1,14 +1,11 @@
 import React from 'react';
 import Hero from '@/components/abix/Hero';
 import ProductDiscovery from '@/components/abix/ProductDiscovery';
-import ShilajitStory from '@/components/abix/ShilajitStory';
+import MountainToRitual from '@/components/abix/MountainToRitual';
 import FeaturedProduct from '@/components/abix/FeaturedProduct';
-import ProductStory from '@/components/abix/ProductStory';
-import WhyAbixmart from '@/components/abix/WhyAbixmart';
-import OpenProduct from '@/components/abix/OpenProduct';
+import MeetTheResin from '@/components/abix/MeetTheResin';
 import RitualOffers from '@/components/abix/RitualOffers';
 import WhatsGrowingNext from '@/components/abix/WhatsGrowingNext';
-import CustomerExperience from '@/components/abix/CustomerExperience';
 import AbixmartCircle from '@/components/abix/AbixmartCircle';
 import Faq from '@/components/abix/Faq';
 import PageTransition from '@/components/abix/PageTransition';
@@ -18,14 +15,11 @@ export default function Home() {
     <PageTransition>
       <Hero />
       <ProductDiscovery />
-      <ShilajitStory />
+      <MountainToRitual />
       <FeaturedProduct />
-      <ProductStory />
-      <WhyAbixmart />
-      <OpenProduct />
+      <MeetTheResin />
       <RitualOffers />
       <WhatsGrowingNext />
-      <CustomerExperience />
       <AbixmartCircle />
       <Faq />
     </PageTransition>
