@@ -1,6 +1,7 @@
 import React from 'react';
 import Hero from '@/components/abix/Hero';
 import ProductDiscovery from '@/components/abix/ProductDiscovery';
+import ShilajitStory from '@/components/abix/ShilajitStory';
 import FeaturedProduct from '@/components/abix/FeaturedProduct';
 import ProductStory from '@/components/abix/ProductStory';
 import WhyAbixmart from '@/components/abix/WhyAbixmart';
@@ -17,6 +18,7 @@ export default function Home() {
     <PageTransition>
       <Hero />
       <ProductDiscovery />
+      <ShilajitStory />
       <FeaturedProduct />
       <ProductStory />
       <WhyAbixmart />
