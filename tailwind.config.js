@@ -54,6 +54,8 @@ module.exports = {
             stone: 'hsl(var(--stone))',
             'stone-dark': 'hsl(var(--stone-dark))',
             charcoal: 'hsl(var(--charcoal))',
+            espresso: 'hsl(var(--espresso))',
+            clay: 'hsl(var(--clay))',
             resin: 'hsl(var(--resin))',
             'resin-light': 'hsl(var(--resin-light))',
   			chart: {

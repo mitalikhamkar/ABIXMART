@@ -33,12 +33,12 @@ export default function Header() {
     <>
       <header
         className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${
-          transparent ? 'bg-transparent' : 'bg-ivory/85 backdrop-blur-md border-b border-greendark/10'
+          transparent ? 'bg-transparent' : 'bg-espresso/90 backdrop-blur-md border-b border-ivory/10'
         }`}
       >
         <nav className="mx-auto max-w-7xl px-6 lg:px-10 h-16 lg:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <span className={`font-display text-2xl lg:text-[26px] tracking-tight leading-none ${transparent ? 'text-ivory' : 'text-greendark'}`}>
+            <span className={`font-display text-2xl lg:text-[26px] tracking-tight leading-none ${transparent ? 'text-ivory' : 'text-ivory'}`}>
               ABIX<span className="text-gold">MART</span>
             </span>
           </Link>
@@ -51,14 +51,14 @@ export default function Header() {
                   key={l.to}
                   to={l.to}
                   className={`relative text-[13px] font-medium tracking-wide transition-colors duration-300 ${
-                    transparent ? 'text-ivory/80 hover:text-ivory' : 'text-foreground/70 hover:text-greendark'
-                  } ${active ? (transparent ? 'text-ivory' : 'text-greendark') : ''}`}
+                    transparent ? 'text-ivory/80 hover:text-ivory' : 'text-ivory/70 hover:text-ivory'
+                  } ${active ? 'text-ivory' : ''}`}
                 >
                   {l.label}
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className={`absolute -bottom-1.5 left-0 h-px w-full ${transparent ? 'bg-gold' : 'bg-gold'}`}
+                      className="absolute -bottom-1.5 left-0 h-px w-full bg-gold-light"
                     />
                   )}
                 </Link>
@@ -69,44 +69,44 @@ export default function Header() {
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={openSearch}
-              className={`h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-greendark/70 hover:text-greendark'}`}
+              className={`h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-ivory/70 hover:text-ivory'}`}
               aria-label="Search"
             >
               <Search size={19} />
             </button>
             <Link
               to="/shop"
-              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-greendark/70 hover:text-greendark'}`}
+              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-ivory/70 hover:text-ivory'}`}
               aria-label="Wishlist"
             >
               <Heart size={19} />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-gold text-greendark text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-gold-light text-charcoal text-[9px] font-bold flex items-center justify-center">
                   {wishlistCount}
                 </span>
               )}
             </Link>
             <button
               onClick={openCart}
-              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-greendark/70 hover:text-greendark'}`}
+              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${transparent ? 'text-ivory/80 hover:text-ivory' : 'text-ivory/70 hover:text-ivory'}`}
               aria-label="Cart"
             >
               <ShoppingBag size={19} />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-greendark text-ivory text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-resin text-ivory text-[9px] font-bold flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
             </button>
             <Link
               to="/shop"
-              className="hidden sm:inline-flex items-center h-10 ml-2 px-5 bg-greendark text-ivory text-[12px] font-medium tracking-luxe-sm uppercase rounded-none hover:bg-gold hover:text-greendark transition-colors duration-300"
+              className="hidden sm:inline-flex items-center h-10 ml-2 px-5 bg-resin text-ivory text-[12px] font-medium tracking-luxe-sm uppercase rounded-none hover:bg-gold-light hover:text-charcoal transition-colors duration-300"
             >
               Shop
             </Link>
             <button
               onClick={() => setOpen((v) => !v)}
-              className={`md:hidden h-10 w-10 inline-flex items-center justify-center ${transparent ? 'text-ivory' : 'text-greendark'}`}
+              className="md:hidden h-10 w-10 inline-flex items-center justify-center text-ivory"
               aria-label="Menu"
             >
               {open ? <X size={22} /> : <Menu size={22} />}
@@ -122,7 +122,7 @@ export default function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 bg-ivory md:hidden pt-16"
+            className="fixed inset-0 z-30 bg-espresso md:hidden pt-16"
           >
             <div className="px-6 py-6 flex flex-col">
               {navLinks.map((l, i) => (
@@ -134,8 +134,8 @@ export default function Header() {
                 >
                   <Link
                     to={l.to}
-                    className={`block py-4 font-display text-3xl border-b border-greendark/10 ${
-                      location.pathname === l.to ? 'text-greendark' : 'text-foreground/60'
+                    className={`block py-4 font-display text-3xl border-b border-ivory/10 ${
+                      location.pathname === l.to ? 'text-gold-light' : 'text-ivory/70'
                     }`}
                   >
                     {l.label}
@@ -144,7 +144,7 @@ export default function Header() {
               ))}
               <Link
                 to="/shop"
-                className="mt-6 h-14 inline-flex items-center justify-center bg-greendark text-ivory text-sm tracking-luxe-sm uppercase"
+                className="mt-6 h-14 inline-flex items-center justify-center bg-resin text-ivory text-sm tracking-luxe-sm uppercase"
               >
                 Shop Shilajit
               </Link>

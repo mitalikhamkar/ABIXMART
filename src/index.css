@@ -34,7 +34,9 @@
     --green-deep: 150 30% 13%;       /* muted charcoal-forest — restrained anchor, not a section-fill color */
     --stone: 32 14% 60%;             /* mineral Himalayan stone neutral */
     --stone-dark: 30 12% 40%;
-    --charcoal: 20 14% 8%;           /* near-black warm charcoal */
+    --charcoal: 20 14% 8%;           /* near-black warm charcoal — primary dominant surface */
+    --espresso: 24 37% 13%;          /* deep warm brown — secondary dominant surface */
+    --clay: 30 29% 27%;              /* warm mid clay/taupe — tertiary surface, the "warm earth" peak */
     --resin: 27 57% 35%;             /* explicit alias of --gold, for new components */
     --resin-light: 30 53% 55%;
     --chart-1: 150 30% 13%;

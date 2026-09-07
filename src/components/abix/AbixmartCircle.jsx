@@ -9,15 +9,15 @@ export default function AbixmartCircle() {
   const [done, setDone] = useState(false);
 
   return (
-    <section className="bg-ivory py-24 lg:py-36 border-t border-greendark/5">
+    <section className="bg-espresso py-24 lg:py-36 border-t border-ivory/10">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <div className="lg:col-span-6">
             <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-resin">The ABIXMART Circle</span>
-            <h2 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-greendark leading-[0.98] tracking-tight">
-              Join the<br /><span className="italic text-gold">Circle.</span>
+            <h2 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-ivory leading-[0.98] tracking-tight">
+              Join the<br /><span className="italic text-gold-light">Circle.</span>
             </h2>
-            <p className="mt-7 text-foreground/65 text-lg leading-relaxed max-w-md">
+            <p className="mt-7 text-ivory/65 text-lg leading-relaxed max-w-md">
               Be first to discover new products, wellness stories, launches and special offers.
               A small circle — for those who care where their wellness comes from.
             </p>
@@ -25,23 +25,23 @@ export default function AbixmartCircle() {
             <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-4 max-w-md">
               {benefits.map((b) => (
                 <div key={b} className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-                  <span className="text-sm tracking-wide text-greendark">{b}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold-light" />
+                  <span className="text-sm tracking-wide text-ivory/80">{b}</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="lg:col-span-6">
-            <div className="bg-charcoal text-ivory p-10 lg:p-14 grain">
+            <div className="bg-charcoal text-ivory p-10 lg:p-14 grain border border-ivory/10">
               {done ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center justify-center text-center py-10"
                 >
-                  <div className="h-16 w-16 rounded-full border border-gold flex items-center justify-center mb-6">
-                    <Check size={28} className="text-gold" />
+                  <div className="h-16 w-16 rounded-full border border-gold-light flex items-center justify-center mb-6">
+                    <Check size={28} className="text-gold-light" />
                   </div>
                   <h3 className="font-display text-3xl">You're in.</h3>
                   <p className="mt-3 text-ivory/70 max-w-xs">
@@ -74,7 +74,7 @@ export default function AbixmartCircle() {
                   </div>
                   <button
                     type="submit"
-                    className="group mt-9 w-full h-14 inline-flex items-center justify-center bg-ivory text-greendark text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold transition-colors duration-300"
+                    className="group mt-9 w-full h-14 inline-flex items-center justify-center bg-ivory text-charcoal text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-resin hover:text-ivory transition-colors duration-300"
                   >
                     Join the Circle
                     <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>
