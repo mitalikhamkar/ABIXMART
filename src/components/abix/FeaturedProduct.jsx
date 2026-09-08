@@ -1,136 +1,134 @@
-import React, { useState } from 'react';
+// src/components/abix/FeaturedProduct.jsx
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Check, Minus, Plus, ScanEye } from 'lucide-react';
-import Eyebrow from './Eyebrow';
+import { useGSAP } from '@gsap/react';
+import { gsap } from '@/lib/gsap';
+import { ScanEye } from 'lucide-react';
 import ProductQuickView from './ProductQuickView';
-import { featuredProduct, PRODUCT_IMAGE } from '@/data/products';
-import { useShop } from '@/lib/ShopContext';
+import { featuredProduct, PRODUCT_HERO_IMAGE } from '@/data/products';
 
+/**
+ * Featured Product — a product SPECIMEN, not a conventional ecommerce
+ * block. No price/qty/cart here; that only appears after exploring the
+ * product in ProductQuickView.
+ *
+ * No stroked ring around the product anymore — a stroked circle never
+ * quite matched the product's own shape/position and kept reading as
+ * "off". Replaced with a soft radial glow behind it and a soft grounding
+ * shadow beneath it — a natural spotlight rather than a geometric outline.
+ */
 export default function FeaturedProduct() {
-  const { openCheckout } = useShop();
-  const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const p = featuredProduct;
 
-  const handleAdd = () => {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
-  };
+  const sectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const imageRef = useRef(null);
+  const ctaRef = useRef(null);
+  const markRefs = useRef([0, 1].map(() => React.createRef()));
 
-  const handleBuyNow = () => {
-    openCheckout({ name: `${p.name} — ${p.subtitle}`, jars: qty, price: p.price * qty });
-  };
+  useGSAP(
+    () => {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const marks = markRefs.current.map((r) => r.current).filter(Boolean);
+
+      if (reduceMotion) {
+        gsap.set([headingRef.current, imageRef.current, ctaRef.current, ...marks], { opacity: 1, scale: 1, y: 0 });
+        return;
+      }
+
+      gsap.set(headingRef.current, { opacity: 0, y: 20 });
+      gsap.set(imageRef.current, { opacity: 0, scale: 0.88, y: 26 });
+      gsap.set(marks, { opacity: 0 });
+      gsap.set(ctaRef.current, { opacity: 0, y: 14 });
+
+      gsap
+        .timeline({
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 70%', once: true },
+          defaults: { ease: 'power3.out' },
+        })
+        .to(headingRef.current, { opacity: 1, y: 0, duration: 0.7 }, 0)
+        .to(imageRef.current, { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power2.out' }, 0.15)
+        .to(marks, { opacity: 1, duration: 0.5, stagger: 0.15 }, 0.95)
+        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.5 }, 1.15);
+    },
+    { scope: sectionRef }
+  );
 
   return (
-    <section id="featured" className="bg-ivory py-24 lg:py-36 border-t border-greendark/5">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Image — layered composition */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
-          >
-            <div className="relative aspect-[3/4] overflow-hidden bg-sand">
-              <img
-                src={PRODUCT_IMAGE}
-                alt={`${p.name} ${p.subtitle}`}
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
-            </div>
-            <button
-              onClick={() => setQuickViewOpen(true)}
-              className="absolute top-4 left-4 inline-flex items-center gap-2 px-4 py-2.5 bg-ivory/95 text-greendark text-[11px] font-semibold uppercase tracking-luxe-sm hover:bg-ivory transition-colors duration-300"
-            >
-              <ScanEye size={14} />
-              Quick View
-            </button>
-            {/* floating seal */}
-            <div className="absolute -bottom-6 -right-2 lg:-right-6 h-28 w-28 lg:h-32 lg:w-32 rounded-full bg-greendark text-ivory flex flex-col items-center justify-center text-center shadow-xl">
-              <span className="font-price text-3xl lg:text-4xl leading-none">{p.currency}{p.price}</span>
-              <span className="text-[9px] uppercase tracking-luxe-sm mt-1 opacity-70">{p.size}</span>
-            </div>
-          </motion.div>
+    <section ref={sectionRef} id="featured" className="relative bg-espresso py-24 lg:py-32 overflow-hidden">
+      {/* restrained material glow — not a busy background */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(139,83,38,0.18),transparent_60%)]" />
 
-          {/* Details */}
-          <div>
-            <Eyebrow>Featured</Eyebrow>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-[56px] text-greendark leading-[1.02] tracking-tight">
-              {p.name}
-            </h2>
-            <p className="mt-2 font-display text-2xl lg:text-3xl italic text-gold">{p.subtitle}</p>
+      <div className="relative mx-auto max-w-6xl px-6 lg:px-10 text-center">
+        <span className="block font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-gold-light">
+          Featured
+        </span>
+        <h2
+          ref={headingRef}
+          className="mt-5 font-display text-4xl sm:text-5xl lg:text-7xl text-ivory leading-[1.02] tracking-tight"
+        >
+          ABIXMART
+          <br className="hidden sm:block" /> Himalayan Shilajit
+        </h2>
+        <p className="mt-5 text-ivory/55 max-w-md mx-auto text-base lg:text-lg">{p.tagline}</p>
+      </div>
 
-            <p className="mt-7 text-foreground/70 text-lg leading-relaxed max-w-md">{p.description}</p>
+      {/* Product specimen — soft spotlight, no geometric ring */}
+      <div className="relative mt-10 lg:mt-14 mx-auto max-w-md sm:max-w-lg lg:max-w-xl px-6">
+        <div ref={markRefs.current[0]} className="flex flex-col items-center gap-1.5 mb-3">
+          <span className="h-3 w-px bg-gold-light/40" />
+          <span className="font-grotesk text-[9px] uppercase tracking-luxe-sm text-ivory/40">{p.size}</span>
+        </div>
 
-            {/* facts */}
-            <dl className="mt-9 grid grid-cols-2 gap-x-8 gap-y-5 max-w-md">
-              {p.facts.map((f) => (
-                <div key={f.label} className="border-t border-greendark/15 pt-3">
-                  <dt className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">{f.label}</dt>
-                  <dd className="mt-1 font-display text-lg text-greendark">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
+        <div className="relative flex items-center justify-center py-6">
+          {/* soft radial glow, hugging the product rather than an outline around it */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(closest-side, rgba(214,158,89,0.16), transparent 72%)' }}
+          />
 
-            {/* how to use */}
-            <div className="mt-9">
-              <span className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">How to use</span>
-              <ul className="mt-3 space-y-2">
-                {p.howToUse.map((h) => (
-                  <li key={h} className="flex gap-3 text-sm text-foreground/75 leading-relaxed">
-                    <Check size={16} className="mt-0.5 shrink-0 text-gold" />
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* quantity + actions */}
-            <div className="mt-10 flex items-center gap-5">
-              <div className="inline-flex items-center border border-greendark/25 h-14">
-                <button
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="h-full w-12 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus size={16} />
-                </button>
-                <span className="w-10 text-center font-price text-xl text-greendark">{qty}</span>
-                <button
-                  onClick={() => setQty((q) => q + 1)}
-                  className="h-full w-12 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-              <span className="font-price text-2xl text-greendark">{p.currency}{p.price * qty}</span>
-            </div>
-
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleAdd}
-                className="group inline-flex items-center justify-center h-14 px-8 border border-greendark text-greendark text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none hover:bg-greendark hover:text-ivory transition-colors duration-300"
-              >
-                {added ? 'Added to ritual' : 'Add to cart'}
-                {added && <Check size={16} className="ml-2" />}
-              </button>
-              <Link
-                to="/shop/shilajit"
-                className="group inline-flex items-center justify-center h-14 px-8 bg-greendark text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none hover:bg-gold hover:text-greendark transition-colors duration-300"
-              >
-                View product
-                <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </Link>
-            </div>
+          <div ref={imageRef} className="relative w-[64%] sm:w-[58%]">
+            <img
+              src={PRODUCT_HERO_IMAGE}
+              alt={`${p.name} — ${p.subtitle}`}
+              className="w-full h-auto select-none"
+              style={{ filter: 'drop-shadow(0 26px 34px rgba(0,0,0,0.5))' }}
+              draggable={false}
+            />
+            {/* grounding shadow — anchors the product instead of a ring */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 -bottom-3 w-[70%] h-4 rounded-full bg-black/50 blur-md"
+              style={{ opacity: 0.5 }}
+            />
           </div>
         </div>
+
+        <div ref={markRefs.current[1]} className="flex items-center justify-center gap-2 mt-2">
+          <span className="w-3 h-px bg-gold-light/40" />
+          <span className="font-grotesk text-[9px] uppercase tracking-luxe-sm text-ivory/40">High Himalayas</span>
+          <span className="w-3 h-px bg-gold-light/40" />
+        </div>
+
+        <div ref={ctaRef} className="mt-8 flex flex-col items-center gap-4">
+          <button
+            onClick={() => setQuickViewOpen(true)}
+            aria-label="Quick view — explore product"
+            className="group inline-flex items-center gap-3 h-14 px-8 border border-gold-light/50 text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold-light hover:text-charcoal transition-colors duration-300"
+          >
+            <ScanEye size={16} />
+            Explore Product
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </button>
+          <Link
+            to="/shop/shilajit"
+            className="text-[11px] uppercase tracking-luxe-sm text-ivory/40 hover:text-ivory/70 transition-colors"
+          >
+            View full details
+          </Link>
+        </div>
       </div>
+
       <ProductQuickView open={quickViewOpen} onClose={() => setQuickViewOpen(false)} />
     </section>
   );

@@ -2,9 +2,12 @@
 // Real product database / Wix store back-office wired in the next phase.
 
 import heroJarCutout from '@/assets/products/shilajit-jar-cutout.png';
+import shilajitJarBox from '@/assets/products/shilajit.jpeg';
 import heroBg from '@/assets/hero/himalayan-hero-bg.png';
 
-// NOTE: HERO_IMAGE (Base44-generated) is not used anywhere in the hero.
+// NOTE: HERO_IMAGE and the string below (Base44-generated) are not used
+// anywhere — kept only so nothing else that might reference the constant
+// name breaks. The REAL, approved product photo is PRODUCT_HERO_IMAGE.
 export const HERO_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/8d3bf021c_generated_a2b6155e.jpg";
 export const PRODUCT_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/250b02195_generated_3433b404.jpg";
 export const SOURCING_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e79451798a06d5a/3fd09bfe9_generated_c687c2de.jpg";
@@ -16,16 +19,21 @@ export const MIST_IMAGE = "https://media.base44.com/images/public/6a9ba7f03e7945
 // jar, background-removed from the supplied product photo. Transparent PNG.
 export const HERO_PRODUCT_IMAGE = heroJarCutout;
 
+// Real ABIXMART jar + box lifestyle photo — used as the Featured Product
+// specimen display (before Quick View opens).
+export const PRODUCT_HERO_IMAGE = shilajitJarBox;
+
 // Real Himalayan environment photo for the hero background (supplied by you).
 export const HERO_BACKGROUND_IMAGE = heroBg;
 
+// src/data/products.js — only this block changes, everything else in the file stays as-is
 export const productBenefits = [
-  { title: 'Natural Energy Boost', body: 'Shilajit helps improve energy levels and reduces fatigue naturally.' },
-  { title: 'Strength & Stamina', body: 'Supports physical performance, stamina and muscle strength.' },
-  { title: 'Enhances Focus & Memory', body: 'Improves cognitive function, focus and mental clarity.' },
-  { title: 'Supports Immunity', body: 'Rich in minerals and fulvic acid that help strengthen immune health.' },
-  { title: '100% Pure Himalayan Shilajit', body: 'Sourced from high-altitude Himalayan rocks for maximum potency and purity.' },
-  { title: 'Overall Wellness', body: 'Promotes overall vitality, balance and well-being.' },
+  { key: 'energy', title: 'Natural Energy Boost', body: 'Shilajit helps improve energy levels and reduces fatigue naturally.' },
+  { key: 'strength', title: 'Strength & Stamina', body: 'Supports physical performance, stamina and muscle strength.' },
+  { key: 'focus', title: 'Enhances Focus & Memory', body: 'Improves cognitive function, focus and mental clarity.' },
+  { key: 'immunity', title: 'Supports Immunity', body: 'Rich in minerals and fulvic acid that help strengthen immune health.' },
+  { key: 'origin', title: '100% Pure Himalayan Shilajit', body: 'Sourced from high-altitude Himalayan rocks for maximum potency and purity.' },
+  { key: 'wellness', title: 'Overall Wellness', body: 'Promotes overall vitality, balance and well-being.' },
 ];
 
 export const featuredProduct = {

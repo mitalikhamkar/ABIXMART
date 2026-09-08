@@ -1,246 +1,424 @@
+// src/components/abix/ProductQuickView.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Minus, Plus, Check } from 'lucide-react';
+import { X, Minus, Plus, Zap, Dumbbell, Brain, ShieldCheck, Mountain, Leaf } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/gsap';
 import { useShop } from '@/lib/ShopContext';
 import { HERO_PRODUCT_IMAGE, featuredProduct, productBenefits } from '@/data/products';
 
-// Six points evenly spaced around a circle (matches the rotation angles
-// used for the connecting line, so the line always points at the
-// currently-active benefit).
-const ORBIT = [
-  { x: 50, y: 6, angle: -90 },
-  { x: 87, y: 27, angle: -30 },
-  { x: 87, y: 73, angle: 30 },
-  { x: 50, y: 94, angle: 90 },
-  { x: 13, y: 73, angle: 150 },
-  { x: 13, y: 27, angle: 210 },
-];
+const BENEFIT_ICONS = {
+  energy: Zap,
+  strength: Dumbbell,
+  focus: Brain,
+  immunity: ShieldCheck,
+  origin: Mountain,
+  wellness: Leaf,
+};
+
+const BENEFIT_STEP_SECONDS = 3.2; // ~0.6s transition + ~2.6s reading hold
 
 /**
- * Product Quick View — a cinematic "product scan" rather than a plain
- * ecommerce modal.
+ * Product Quick View — a single autonomous GSAP sequence:
  *
- * Phases (all one GSAP sequence, plays once per open, never loops):
- *   scan     -> the real product settles into focus, a soft light sweep
- *               passes across it.
- *   benefits -> a thin line pivots from the product to each of the 6
- *               approved benefits in turn, one dominant at a time.
- *   info     -> settles into a plain, readable product panel (name,
- *               price, qty, Add to Cart) plus a quiet reference list of
- *               all six benefits, for anyone who wants to just read.
+ *   scan (compact frame only) -> benefit 01..06 -> purchase info
  *
- * `prefers-reduced-motion` skips straight to the readable info panel —
- * nothing is lost, it's just presented immediately without the sequence.
+ * COMPACT FRAME: the product lives inside `frameBoxRef`, a fixed,
+ * near-square/vertical box (not a wide panel). During the `scan` phase
+ * that box is the ONLY thing on screen — the modal itself is narrow
+ * (`isCompact` controls the max-width) and no content column is
+ * rendered at all, so there is no empty second box sitting next to it.
+ *
+ * SCAN: the sweep (`sweepRef`) is a child of `frameBoxRef` and is
+ * clipped by that box's own `overflow-hidden`, so the wide amber band
+ * travels across the ENTIRE compact frame (product + surrounding
+ * stage), not just the jar.
+ *
+ * TRANSITION: once the scan timeline completes, `phase` flips to
+ * `benefits`. That mounts the content column and widens the modal
+ * (CSS `max-width`/box-width transition on `panelRootRef` /
+ * `frameBoxRef`'s wrapper) while the frame itself scales down slightly
+ * and settles to one side — a continuous transition rather than a
+ * second box popping in.
+ *
+ * CONTROL: everything is driven by one GSAP timeline per phase, built
+ * in `useGSAP` scoped to the panel and keyed only on `[open, phase]`.
+ * There is no mouseenter/mouseleave/mousemove/hover/ScrollTrigger
+ * anywhere near these timelines — the cursor and the scroll wheel
+ * cannot pause, restart, reverse, or scrub them.
+ *
+ * CLEANUP: closing sets `open` to false, which unmounts this subtree
+ * (`if (!open) return null` below). `useGSAP`'s context automatically
+ * reverts/kills whichever timeline is running on unmount, so reopening
+ * always starts a single fresh sequence — no stacked timelines, no
+ * stale benefit state.
+ *
+ * ASSET: uses the real `HERO_PRODUCT_IMAGE` export from
+ * `@/data/products`, which should point at
+ * `src/assets/products/shilajit-jar-cutout.png`. No generated/fake
+ * product imagery is used here. If that export currently resolves to
+ * a placeholder, fix it at the source (`src/data/products.js`) rather
+ * than in this component.
+ *
+ * `prefers-reduced-motion` skips straight to the purchase info.
  */
 export default function ProductQuickView({ open, onClose }) {
   const { addToCart } = useShop();
   const [qty, setQty] = useState(1);
-  const [phase, setPhase] = useState('scan');
+  const [phase, setPhase] = useState('scan'); // 'scan' | 'benefits' | 'info'
   const [activeBenefit, setActiveBenefit] = useState(0);
-  const [added, setAdded] = useState(false);
 
-  const panelRef = useRef(null);
-  const imageRef = useRef(null);
+  const panelRootRef = useRef(null);
+  const frameBoxRef = useRef(null);
+  const bgOverlayRef = useRef(null);
+  const glowRef = useRef(null);
   const sweepRef = useRef(null);
-  const lineRef = useRef(null);
-  const benefitRefs = useRef(productBenefits.map(() => React.createRef()));
+  const tickTopRef = useRef(null);
+  const tickSideRef = useRef(null);
+  const imageRef = useRef(null);
+  const contentColRef = useRef(null);
+  const accentLineRef = useRef(null);
+  const badgeRef = useRef(null);
+  const numberRef = useRef(null);
+  const titleRef = useRef(null);
+  const descRef = useRef(null);
+  const progressRef = useRef(null);
+  const infoRef = useRef(null);
+
+  const showContent = phase !== 'scan';
+  const isCompact = phase === 'scan';
 
   useEffect(() => {
     if (open) {
       setQty(1);
-      setAdded(false);
       setPhase('scan');
       setActiveBenefit(0);
     }
   }, [open]);
 
-  // Phase 1 — the scan.
+  // ---- Phase 1: full-frame scan. Timeline-only — no hover/scroll input. ----
   useGSAP(
     () => {
       if (!open || phase !== 'scan') return;
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (reduceMotion) {
-        gsap.set(imageRef.current, { opacity: 1, scale: 1, rotation: 0 });
+        gsap.set([imageRef.current, bgOverlayRef.current, glowRef.current, tickTopRef.current, tickSideRef.current], {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
+        });
         setPhase('info');
         return;
       }
 
-      gsap.set(imageRef.current, { opacity: 0, scale: 0.82, rotation: -6 });
-      gsap.set(sweepRef.current, { opacity: 0, xPercent: -70 });
+      gsap.set(imageRef.current, { opacity: 0, scale: 0.82, rotation: -6, y: 20 });
+      gsap.set(bgOverlayRef.current, { opacity: 0 });
+      gsap.set([glowRef.current, tickTopRef.current, tickSideRef.current], { opacity: 0 });
+      // Fully off the LEFT edge of the compact frame, not just the jar.
+      gsap.set(sweepRef.current, { opacity: 0, xPercent: -140 });
 
       gsap
         .timeline({ onComplete: () => setPhase('benefits') })
-        .to(imageRef.current, { opacity: 1, scale: 1, rotation: 0, duration: 0.9, ease: 'power3.out' }, 0)
-        .to(sweepRef.current, { opacity: 0.35, xPercent: 170, duration: 1.1, ease: 'sine.inOut' }, 0.3)
-        .to(sweepRef.current, { opacity: 0, duration: 0.3 }, 1.3);
+        .to(bgOverlayRef.current, { opacity: 0.45, duration: 0.6, ease: 'power2.out' }, 0)
+        .to(imageRef.current, { opacity: 1, scale: 1.06, rotation: 0, y: 0, duration: 0.9, ease: 'power3.out' }, 0.15)
+        .to(imageRef.current, { scale: 1, duration: 0.45, ease: 'power2.inOut' }, 1.05)
+        .to([glowRef.current, tickTopRef.current, tickSideRef.current], { opacity: 1, duration: 0.45, stagger: 0.1 }, 0.85)
+        // Pass 1 — full frame, left edge to right edge
+        .to(sweepRef.current, { opacity: 0.6, xPercent: 240, duration: 1.0, ease: 'sine.inOut' }, 0.75)
+        // Pass 2 — right edge back to left edge
+        .to(sweepRef.current, { xPercent: -140, duration: 1.0, ease: 'sine.inOut' }, 1.85)
+        // Pass 3 — left edge to right edge again
+        .to(sweepRef.current, { xPercent: 240, duration: 1.0, ease: 'sine.inOut' }, 2.95)
+        .to(sweepRef.current, { opacity: 0, duration: 0.3 }, 3.95)
+        .to({}, { duration: 0.6 }); // hold before the frame transitions to benefits
     },
-    { scope: panelRef, dependencies: [open, phase] }
+    { scope: panelRootRef, dependencies: [open, phase] }
   );
 
-  // Phase 2 — benefits orbit, one dominant at a time.
+  // ---- Phase transition: frame settles, content column reveals. ----
+  useGSAP(
+    () => {
+      if (!open || phase === 'scan') return;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion || phase !== 'benefits') return;
+
+      gsap.fromTo(
+        contentColRef.current,
+        { opacity: 0, x: 16 },
+        { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' }
+      );
+    },
+    { scope: panelRootRef, dependencies: [open, phase] }
+  );
+
+  // ---- Phase 2: benefits, one dominant at a time. Timeline-only. ----
   useGSAP(
     () => {
       if (!open || phase !== 'benefits') return;
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const benefits = benefitRefs.current.map((r) => r.current);
 
       if (reduceMotion) {
-        gsap.set(benefits, { opacity: 1, scale: 1 });
+        gsap.set([accentLineRef.current, badgeRef.current, numberRef.current, titleRef.current, descRef.current], {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          clipPath: 'inset(0 0 0 0)',
+        });
         setPhase('info');
         return;
       }
 
-      gsap.set(benefits, { opacity: 0, scale: 0.85 });
-      gsap.set(lineRef.current, { opacity: 0, rotation: ORBIT[0].angle });
+      gsap.set(accentLineRef.current, { scaleX: 0, opacity: 0 });
+      gsap.set(badgeRef.current, { opacity: 0, scale: 0.5 });
+      gsap.set(numberRef.current, { opacity: 0, x: -10 });
+      gsap.set(titleRef.current, { opacity: 0, y: 18, clipPath: 'inset(0 100% 0 0)' });
+      gsap.set(descRef.current, { opacity: 0, y: 10, filter: 'blur(4px)' });
+      gsap.set(progressRef.current, { scaleX: 0 });
 
+      const stepDur = BENEFIT_STEP_SECONDS;
       const tl = gsap.timeline({ onComplete: () => setPhase('info') });
-      productBenefits.forEach((_, i) => {
-        const t = i * 1.05;
-        tl.to(lineRef.current, { opacity: 0.5, rotation: ORBIT[i].angle, duration: 0.5, ease: 'power2.inOut' }, t);
-        tl.call(() => setActiveBenefit(i), null, t);
-        tl.fromTo(benefits[i], { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4 }, t);
-        if (i < productBenefits.length - 1) {
-          tl.to(benefits[i], { opacity: 0.3, scale: 0.9, duration: 0.4 }, t + 0.85);
-        }
-      });
-      tl.to(lineRef.current, { opacity: 0, duration: 0.4 });
 
-      return () => {}; // cleanup handled by useGSAP's context revert
+      productBenefits.forEach((_, i) => {
+        const t = i * stepDur;
+        if (i > 0) {
+          tl.to(badgeRef.current, { opacity: 0, scale: 0.6, duration: 0.25 }, t - 0.3);
+          tl.to([numberRef.current, titleRef.current, descRef.current], { opacity: 0, y: -8, duration: 0.25 }, t - 0.3);
+        }
+        tl.call(() => setActiveBenefit(i), null, t);
+
+        // Small accent dash beside the counter — never crosses the heading.
+        tl.fromTo(accentLineRef.current, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 0.7, duration: 0.35, ease: 'power2.out' }, t);
+        // Icon badge pops in — the interaction anchor.
+        tl.fromTo(badgeRef.current, { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.8)' }, t + 0.1);
+        tl.fromTo(numberRef.current, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3 }, t + 0.15);
+        // Title reveals via a wipe (clip-path), not a plain fade.
+        tl.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 18, clipPath: 'inset(0 100% 0 0)' },
+          { opacity: 1, y: 0, clipPath: 'inset(0 0% 0 0)', duration: 0.55, ease: 'power3.out' },
+          t + 0.2
+        );
+        // Description settles in with a soft blur-to-sharp resolve.
+        tl.fromTo(
+          descRef.current,
+          { opacity: 0, y: 10, filter: 'blur(4px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.45, ease: 'power2.out' },
+          t + 0.35
+        );
+
+        tl.to(progressRef.current, { scaleX: (i + 1) / productBenefits.length, duration: stepDur * 0.92, ease: 'none' }, t);
+      });
+
+      tl.to([accentLineRef.current, badgeRef.current, numberRef.current, titleRef.current, descRef.current], {
+        opacity: 0,
+        duration: 0.3,
+      });
     },
-    { scope: panelRef, dependencies: [open, phase] }
+    { scope: panelRootRef, dependencies: [open, phase] }
+  );
+
+  // ---- Phase 3: purchase info reveal. Timeline-only. ----
+  useGSAP(
+    () => {
+      if (!open || phase !== 'info') return;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion) {
+        gsap.set(infoRef.current, { opacity: 1, y: 0 });
+        return;
+      }
+      gsap.set(infoRef.current, { opacity: 0, y: 16 });
+      gsap.to(infoRef.current, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.1 });
+    },
+    { scope: panelRootRef, dependencies: [open, phase] }
   );
 
   if (!open) return null;
 
   const unit = featuredProduct.price;
   const total = unit * qty;
+  const benefit = productBenefits[activeBenefit];
+  const BenefitIcon = BENEFIT_ICONS[benefit.key];
 
   const handleAddToCart = () => {
     addToCart('shilajit-resin', qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
+      {/* Modal panel — narrow while scanning, widens once benefits begin.
+          The width change is a CSS transition, not a pop: it starts the
+          instant `phase` leaves 'scan' and runs alongside the content
+          column's own GSAP fade-in above. */}
       <div
-        ref={panelRef}
+        ref={panelRootRef}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-ivory w-full max-w-3xl max-h-[92vh] overflow-y-auto"
+        className="relative bg-charcoal text-ivory w-full overflow-y-auto max-h-[92vh] transition-[max-width] duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ maxWidth: isCompact ? 440 : 1040 }}
       >
         <button
           onClick={onClose}
           aria-label="Close quick view"
-          className="absolute top-4 right-4 z-10 p-2 text-greendark/60 hover:text-greendark transition-colors"
+          className="absolute top-4 right-4 z-20 p-2 text-ivory/60 hover:text-ivory transition-colors"
         >
           <X size={18} />
         </button>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 p-6 sm:p-10 lg:p-14">
-          {/* Product stage — scan + orbiting benefits happen here */}
-          <div className="relative aspect-square flex items-center justify-center bg-[#2b2118]">
-            <div ref={imageRef} className="relative w-[46%]">
-              <img
-                src={HERO_PRODUCT_IMAGE}
-                alt="ABIXMART Himalayan Shilajit"
-                draggable={false}
-                className="w-full h-auto select-none"
-                style={{ filter: 'drop-shadow(0 18px 24px rgba(0,0,0,0.45))' }}
-              />
-            </div>
-
-            {/* Light sweep */}
+        <div
+          className={`flex flex-col ${
+            showContent ? 'lg:flex-row lg:items-center lg:justify-start' : 'items-center justify-center'
+          } gap-10 lg:gap-12 px-6 sm:px-10 py-14`}
+        >
+          {/* THE COMPACT PRODUCT INSPECTION FRAME — vertical/near-square,
+              never a wide panel. Everything scan-related lives inside it
+              and is clipped by its own overflow-hidden, so the sweep
+              covers this whole box, not just the jar. */}
+          <div
+            className={`relative shrink-0 transition-[width] duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              showContent ? 'lg:w-[300px]' : 'w-full max-w-[300px]'
+            }`}
+          >
             <div
-              ref={sweepRef}
-              className="absolute inset-y-0 w-1/3 pointer-events-none mix-blend-soft-light"
-              style={{ left: '-20%', background: 'linear-gradient(100deg, transparent, rgba(255,238,205,0.9), transparent)' }}
-            />
+              ref={frameBoxRef}
+              className="relative w-full aspect-[4/5] overflow-hidden transition-transform duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{
+                background: 'linear-gradient(160deg, #241b14 0%, #1a130d 60%, #150f0a 100%)',
+                transform: showContent ? 'scale(0.96)' : 'scale(1)',
+              }}
+            >
+              <div ref={bgOverlayRef} className="absolute inset-0 bg-black pointer-events-none" style={{ opacity: 0 }} />
+              <div
+                ref={glowRef}
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 55%, rgba(214,158,89,0.20), transparent 68%)' }}
+              />
 
-            {/* Connecting line + orbiting benefits */}
-            {phase === 'benefits' && (
-              <>
-                <div
-                  ref={lineRef}
-                  className="absolute left-1/2 top-1/2 h-px w-[38%] bg-gold/70 origin-left"
-                />
-                {productBenefits.map((b, i) => (
+              {/* Full-frame scan sweep — clipped by frameBoxRef's overflow-hidden */}
+              <div
+                ref={sweepRef}
+                className="absolute inset-y-0 left-0 w-1/3 pointer-events-none mix-blend-screen"
+                style={{ background: 'linear-gradient(100deg, transparent, rgba(214,158,89,0.9), transparent)' }}
+              />
+
+              {/* Thin contour markings — restrained, span the frame, not the jar */}
+              <div ref={tickTopRef} className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none">
+                <span className="h-3 w-px bg-gold-light/40" />
+                <span className="font-grotesk text-[9px] uppercase tracking-luxe-sm text-ivory/40">
+                  {featuredProduct.size}
+                </span>
+              </div>
+              <div ref={tickSideRef} className="absolute left-5 bottom-5 flex items-center gap-2 pointer-events-none">
+                <span className="w-3 h-px bg-gold-light/40" />
+                <span className="font-grotesk text-[9px] uppercase tracking-luxe-sm text-ivory/40">Pure Resin</span>
+              </div>
+
+              {/* Specimen-window corner brackets */}
+              {['top-3 left-3 border-t border-l', 'top-3 right-3 border-t border-r', 'bottom-3 left-3 border-b border-l', 'bottom-3 right-3 border-b border-r'].map(
+                (pos) => (
+                  <span key={pos} className={`absolute ${pos} w-4 h-4 border-gold-light/30 pointer-events-none`} />
+                )
+              )}
+
+              {/* Product — large and dominant inside the frame */}
+              <div className="absolute inset-0 flex items-center justify-center p-6">
+                <div ref={imageRef} className="relative w-[78%]">
+                  <img
+                    src={HERO_PRODUCT_IMAGE}
+                    alt="ABIXMART Himalayan Shilajit"
+                    draggable={false}
+                    className="w-full h-auto select-none block"
+                    style={{ filter: 'drop-shadow(0 22px 26px rgba(0,0,0,0.55))' }}
+                  />
                   <div
-                    key={b.title}
-                    ref={benefitRefs.current[i]}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 max-w-[120px] text-center"
-                    style={{ left: `${ORBIT[i].x}%`, top: `${ORBIT[i].y}%` }}
-                  >
-                    <span className={`text-[10px] uppercase tracking-luxe-sm leading-tight block ${activeBenefit === i ? 'text-gold' : 'text-ivory/70'}`}>
-                      {b.title}
+                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-[55%] h-4 rounded-full bg-black/50 blur-md"
+                    style={{ opacity: 0.5 }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content zone — mounted only once the scan has finished, so
+              there is never a second box sitting beside the frame while
+              scanning. Fades/slides in as the frame settles. */}
+          {showContent && (
+            <div ref={contentColRef} className="w-full lg:flex-1 lg:max-w-sm">
+              {phase === 'benefits' && (
+                <div>
+                  <div className="flex items-center gap-4 mb-5">
+                    <div
+                      ref={badgeRef}
+                      className="h-14 w-14 rounded-full bg-charcoal border border-gold-light/60 flex items-center justify-center text-gold-light shrink-0"
+                    >
+                      {BenefitIcon && <BenefitIcon size={24} />}
+                    </div>
+                    <span className="flex items-center gap-2">
+                      <span ref={accentLineRef} className="h-px w-6 bg-gold-light/60 origin-left" />
+                      <span ref={numberRef} className="font-grotesk text-xs uppercase tracking-luxe-sm text-gold-light">
+                        0{activeBenefit + 1} / 0{productBenefits.length}
+                      </span>
                     </span>
                   </div>
-                ))}
-              </>
-            )}
-          </div>
-
-          {/* Info panel */}
-          <div className="flex flex-col justify-center">
-            {phase !== 'info' ? (
-              <div className="text-[11px] uppercase tracking-luxe-sm text-greendark/40">
-                {phase === 'scan' ? 'Examining the resin…' : 'Product profile'}
-              </div>
-            ) : (
-              <>
-                <span className="text-[11px] uppercase tracking-luxe-sm text-gold">Product Profile</span>
-                <h3 className="mt-3 font-display text-3xl lg:text-4xl text-greendark leading-tight">
-                  {featuredProduct.name}
-                </h3>
-                <p className="mt-1 font-display text-xl italic text-gold">{featuredProduct.subtitle}</p>
-
-                <div className="mt-6 flex items-center gap-5">
-                  <div className="inline-flex items-center border border-greendark/25 h-12">
-                    <button
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="h-full w-10 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors"
-                      aria-label="Decrease quantity"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className="w-9 text-center font-price text-lg text-greendark">{qty}</span>
-                    <button
-                      onClick={() => setQty((q) => q + 1)}
-                      className="h-full w-10 inline-flex items-center justify-center text-greendark hover:bg-sand transition-colors"
-                      aria-label="Increase quantity"
-                    >
-                      <Plus size={14} />
-                    </button>
+                  <h3 ref={titleRef} className="font-display text-3xl lg:text-4xl text-ivory leading-tight uppercase">
+                    {benefit.title}
+                  </h3>
+                  <p ref={descRef} className="mt-4 text-ivory/60 text-base lg:text-lg leading-relaxed">
+                    {benefit.body}
+                  </p>
+                  <div className="mt-8 w-full max-w-xs h-px bg-ivory/15">
+                    <div ref={progressRef} className="h-full bg-gold-light origin-left" style={{ transform: 'scaleX(0)' }} />
                   </div>
-                  <span className="font-price text-xl text-greendark">
-                    {featuredProduct.currency}
-                    {total}
-                  </span>
                 </div>
+              )}
 
-                <button
-                  onClick={handleAddToCart}
-                  className="mt-6 inline-flex items-center justify-center h-[52px] px-8 bg-greendark text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold hover:text-greendark transition-colors duration-300"
-                >
-                  {added ? 'Added to cart' : 'Add to Cart'}
-                  {added && <Check size={16} className="ml-2" />}
-                </button>
+              {phase === 'info' && (
+                <div ref={infoRef}>
+                  <span className="text-[11px] uppercase tracking-luxe-sm text-gold-light">Product Profile</span>
+                  <h3 className="mt-3 font-display text-3xl lg:text-4xl text-ivory leading-tight">
+                    {featuredProduct.name}
+                  </h3>
+                  <p className="mt-1 font-display text-xl italic text-gold-light">
+                    {featuredProduct.subtitle} · {featuredProduct.size}
+                  </p>
 
-                {/* Quiet reference list — so nothing is lost if the scan is skipped/missed */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 border-t border-greendark/10 pt-6">
-                  {productBenefits.map((b) => (
-                    <div key={b.title}>
-                      <span className="text-[10px] uppercase tracking-luxe-sm text-greendark/50">{b.title}</span>
-                      <p className="text-xs text-foreground/55 leading-relaxed mt-0.5">{b.body}</p>
+                  <div className="mt-8 flex items-center gap-5">
+                    <div className="inline-flex items-center border border-ivory/25 h-12">
+                      <button
+                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        className="h-full w-10 inline-flex items-center justify-center text-ivory hover:bg-ivory/10 transition-colors"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="w-9 text-center font-price text-lg text-ivory">{qty}</span>
+                      <button
+                        onClick={() => setQty((q) => q + 1)}
+                        className="h-full w-10 inline-flex items-center justify-center text-ivory hover:bg-ivory/10 transition-colors"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus size={14} />
+                      </button>
                     </div>
-                  ))}
+                    <span className="font-price text-xl text-ivory">
+                      {featuredProduct.currency}
+                      {total}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleAddToCart}
+                    className="mt-6 inline-flex items-center justify-center h-[52px] px-8 bg-gold-light text-charcoal text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-ivory transition-colors duration-300"
+                  >
+                    Add to Cart
+                  </button>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
