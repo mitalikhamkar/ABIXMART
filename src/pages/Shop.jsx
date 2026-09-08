@@ -18,14 +18,14 @@ export default function Shop() {
 
   return (
     <PageTransition>
-      {/* Shop hero — sand */}
-      <section className="bg-sand pt-28 lg:pt-36 pb-16 lg:pb-24">
+      {/* Shop hero — espresso, matching the Home/About dark rhythm */}
+      <section className="bg-espresso pt-28 lg:pt-36 pb-16 lg:pb-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <Eyebrow tone="moss">The Shop</Eyebrow>
-          <h1 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-greendark leading-[1] tracking-tight">
+          <Eyebrow light>The Shop</Eyebrow>
+          <h1 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-ivory leading-[1] tracking-tight">
             Explore ABIXMART
           </h1>
-          <p className="mt-6 max-w-xl text-foreground/65 text-lg leading-relaxed">
+          <p className="mt-6 max-w-xl text-ivory/70 text-lg leading-relaxed">
             Himalayan Shilajit, crafted with patience — and more Ayurvedic wellness on the way.
             Take your time. Understand the source before you choose.
           </p>
@@ -40,7 +40,7 @@ export default function Shop() {
               <button
                 key={c.key}
                 onClick={() => setActiveCat(c.key)}
-                className={`h-11 px-5 text-[12px] font-medium tracking-luxe-sm uppercase border transition-colors duration-300 ${
+                className={`h-11 px-5 font-grotesk text-[12px] font-medium tracking-luxe-sm uppercase border transition-colors duration-300 ${
                   activeCat === c.key
                     ? 'bg-greendark text-ivory border-greendark'
                     : 'border-greendark/20 text-greendark hover:border-greendark'
@@ -102,11 +102,11 @@ export default function Shop() {
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.7, delay: i * 0.1 }}
                 className={`relative flex flex-col p-8 lg:p-10 transition-colors duration-500 ${
-                  b.highlight ? 'bg-greendark text-ivory' : 'bg-sand text-greendark'
+                  b.highlight ? 'bg-resin text-ivory' : 'bg-sand text-greendark'
                 }`}
               >
                 {b.highlight && (
-                  <span className="absolute top-6 right-6 text-[9px] uppercase tracking-luxe-sm text-gold">Most chosen</span>
+                  <span className="absolute top-6 right-6 label-meta text-gold-light">Most chosen</span>
                 )}
                 <span className={`font-display text-6xl leading-none ${b.highlight ? 'text-ivory/25' : 'text-greendark/15'}`}>
                   0{i + 1}
@@ -120,7 +120,7 @@ export default function Shop() {
                 <button
                   onClick={() => openCheckout({ name: `${b.name} — Shilajit Pure Resin`, jars: b.jars, price: b.price })}
                   className={`group mt-8 h-14 inline-flex items-center justify-center text-[12px] font-semibold tracking-luxe-sm uppercase transition-colors duration-300 ${
-                    b.highlight ? 'bg-ivory text-greendark hover:bg-gold' : 'bg-greendark text-ivory hover:bg-gold hover:text-greendark'
+                    b.highlight ? 'bg-ivory text-charcoal hover:bg-charcoal hover:text-ivory' : 'bg-greendark text-ivory hover:bg-gold hover:text-greendark'
                   }`}
                 >
                   Start this ritual

@@ -33,7 +33,7 @@ export default function AbixmartAssist() {
           <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-60 animate-ping" />
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold" />
         </span>
-        <span className="text-[12px] font-semibold tracking-luxe-sm uppercase">Need help?</span>
+        <span className="font-grotesk text-[12px] font-semibold tracking-luxe-sm uppercase">Need help?</span>
       </motion.button>
 
       <AnimatePresence>
@@ -55,7 +55,7 @@ export default function AbixmartAssist() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <span className="text-[11px] uppercase tracking-luxe-sm text-gold">ABIXMART Assist</span>
+                  <span className="label-meta text-gold-light">ABIXMART Assist</span>
                   <h2 className="mt-2 font-display text-4xl lg:text-5xl text-ivory">How can we help?</h2>
                 </div>
                 <button onClick={closeAssist} className="h-11 w-11 inline-flex items-center justify-center text-ivory border border-ivory/25 hover:border-gold hover:text-gold transition-colors rounded-full">

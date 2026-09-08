@@ -14,11 +14,11 @@ export default function About() {
 
   return (
     <PageTransition>
-      {/* Hero — dark */}
-      <section className="relative bg-greendark min-h-[80vh] flex items-end overflow-hidden grain">
+      {/* Hero — espresso */}
+      <section className="relative bg-espresso min-h-[80vh] flex items-end overflow-hidden grain">
         <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
           <img src={HERO_IMAGE} alt="The Himalayas" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-greendark/50 via-greendark/40 to-greendark/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-espresso/50 via-espresso/40 to-espresso/85" />
         </motion.div>
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10 pb-20 lg:pb-28 pt-32">
           <Eyebrow light>About ABIXMART</Eyebrow>
@@ -37,7 +37,7 @@ export default function About() {
       <section className="bg-ivory py-24 lg:py-36">
         <div className="mx-auto max-w-4xl px-6 lg:px-10 text-center">
           <Eyebrow className="justify-center">Our philosophy</Eyebrow>
-          <h2 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl text-greendark leading-[1.05] tracking-tight text-balance">
+          <h2 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.05] tracking-tight text-balance">
             We trade in origin, process, and care — not in claims we can't verify.
           </h2>
           <p className="mt-8 text-foreground/65 text-lg leading-relaxed max-w-2xl mx-auto">
@@ -49,7 +49,7 @@ export default function About() {
       </section>
 
       {/* Origin — sand with image */}
-      <section className="bg-sand py-24 lg:py-36 border-t border-greendark/5">
+      <section className="bg-sand py-24 lg:py-36 border-t border-charcoal/5">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
@@ -59,11 +59,11 @@ export default function About() {
             className="relative aspect-[4/5] overflow-hidden"
           >
             <img src={SOURCING_IMAGE} alt="Himalayan sourcing" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
+            <div className="absolute inset-0 ring-1 ring-inset ring-charcoal/10" />
           </motion.div>
           <div>
-            <Eyebrow tone="moss">Natural origin</Eyebrow>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl text-greendark leading-[1.02] tracking-tight">
+            <Eyebrow>Natural origin</Eyebrow>
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl text-charcoal leading-[1.02] tracking-tight">
               From the high Himalayas.
             </h2>
             <p className="mt-6 text-foreground/65 text-lg leading-relaxed">
@@ -76,11 +76,11 @@ export default function About() {
       </section>
 
       {/* Process timeline — dark */}
-      <section ref={ref} className="relative bg-greendark py-24 lg:py-36 overflow-hidden grain">
+      <section ref={ref} className="relative bg-charcoal py-24 lg:py-36 overflow-hidden grain">
         <div className="absolute inset-0 opacity-15">
           <img src={PURIFICATION_IMAGE} alt="" className="h-full w-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-greendark via-greendark/90 to-greendark" />
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-charcoal/90 to-charcoal" />
         <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
           <Eyebrow light>The manufacturing journey</Eyebrow>
           <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-ivory leading-[1.02] tracking-tight">
@@ -108,15 +108,15 @@ export default function About() {
       </section>
 
       {/* Quality / trust — ivory */}
-      <section className="bg-ivory py-24 lg:py-36 border-t border-greendark/5">
+      <section className="bg-ivory py-24 lg:py-36 border-t border-charcoal/5">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="max-w-2xl mb-14">
             <Eyebrow>Quality & transparency</Eyebrow>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-greendark leading-[1.02] tracking-tight">
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.02] tracking-tight">
               Know what goes into ABIXMART.
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-greendark/10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-charcoal/10">
             {trustPillars.map((p, i) => (
               <motion.div
                 key={p.key}
@@ -126,8 +126,8 @@ export default function About() {
                 transition={{ duration: 0.6, delay: i * 0.07 }}
                 className="bg-ivory p-8 lg:p-10 group hover:bg-sand transition-colors duration-500"
               >
-                <span className="text-[10px] uppercase tracking-luxe-sm text-gold">{p.label}</span>
-                <h3 className="mt-4 font-display text-2xl text-greendark leading-tight">{p.title}</h3>
+                <span className="label-meta text-gold-light">{p.label}</span>
+                <h3 className="mt-4 font-display text-2xl text-charcoal leading-tight">{p.title}</h3>
                 <p className="mt-3 text-sm text-foreground/60 leading-relaxed">{p.body}</p>
               </motion.div>
             ))}
@@ -136,10 +136,10 @@ export default function About() {
       </section>
 
       {/* Vision — sand */}
-      <section className="bg-sand py-24 lg:py-36 border-t border-greendark/5">
+      <section className="bg-sand py-24 lg:py-36 border-t border-charcoal/5">
         <div className="mx-auto max-w-4xl px-6 lg:px-10 text-center">
-          <Eyebrow tone="moss" className="justify-center">Our vision</Eyebrow>
-          <h2 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl text-greendark leading-[1.05] tracking-tight text-balance">
+          <Eyebrow className="justify-center">Our vision</Eyebrow>
+          <h2 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.05] tracking-tight text-balance">
             To make ancient wellness feel modern — without losing what made it ancient.
           </h2>
           <p className="mt-8 text-foreground/65 text-lg leading-relaxed max-w-2xl mx-auto">
@@ -147,7 +147,7 @@ export default function About() {
             Ashwagandha, Triphala, Amla, Moringa — each with the same patience, the same transparency, the same
             respect for origin.
           </p>
-          <Link to="/shop" className="group mt-10 inline-flex items-center h-14 px-9 bg-greendark text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold hover:text-greendark transition-colors duration-300">
+          <Link to="/shop" className="group mt-10 inline-flex items-center h-14 px-9 bg-charcoal text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold hover:text-charcoal transition-colors duration-300">
             Explore the shop
             <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>

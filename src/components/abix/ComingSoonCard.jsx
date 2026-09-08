@@ -21,7 +21,7 @@ export default function ComingSoonCard({ product, index = 0 }) {
           </span>
         </div>
         <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
-        <span className="absolute top-4 left-4 text-[10px] uppercase tracking-luxe-sm text-gold bg-greendark/90 px-2 py-1">
+        <span className="absolute top-4 left-4 label-meta text-gold-light bg-greendark/90 px-2 py-1">
           Coming Soon
         </span>
       </div>

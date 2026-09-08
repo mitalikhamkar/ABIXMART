@@ -100,7 +100,7 @@ export default function Support() {
             >
               <div className="flex items-center justify-between mb-6">
                 <span className="font-display text-2xl text-greendark">Order {orderId || 'ABX-2026-001'}</span>
-                <span className="text-xs uppercase tracking-luxe-sm text-gold">{orderSteps[demoStage].label}</span>
+                <span className="label-meta text-gold-light">{orderSteps[demoStage].label}</span>
               </div>
               <div className="space-y-0">
                 {orderSteps.map((s, i) => {

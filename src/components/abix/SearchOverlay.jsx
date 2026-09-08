@@ -38,7 +38,7 @@ export default function SearchOverlay() {
         >
           <div className="mx-auto max-w-3xl w-full px-6 pt-28 pb-10 flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-8">
-              <span className="text-[11px] uppercase tracking-luxe-sm text-gold">Search ABIXMART</span>
+              <span className="label-meta text-gold-light">Search ABIXMART</span>
               <button onClick={closeSearch} className="h-11 w-11 inline-flex items-center justify-center text-greendark border border-greendark/20 hover:border-gold hover:text-gold transition-colors rounded-full">
                 <X size={20} />
               </button>
@@ -76,7 +76,7 @@ export default function SearchOverlay() {
                         <h4 className="font-display text-xl text-greendark group-hover:text-gold transition-colors">{p.name}</h4>
                         <p className="text-sm text-foreground/55">{p.shortDesc || p.note}</p>
                       </div>
-                      <span className="text-xs uppercase tracking-luxe-sm text-foreground/40">
+                      <span className="label-meta text-foreground/40">
                         {p.status === 'coming_soon' ? 'Coming Soon' : `${p.currency}${p.price}`}
                       </span>
                     </Link>

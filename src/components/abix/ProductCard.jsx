@@ -22,7 +22,7 @@ export default function ProductCard({ product, index = 0 }) {
             <img
               src={product.image}
               alt={product.name}
-              className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+              className="h-full w-full object-cover transition-transform [transition-duration:1.2s] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center">
@@ -30,7 +30,7 @@ export default function ProductCard({ product, index = 0 }) {
             </div>
           )}
           <div className="absolute inset-0 ring-1 ring-inset ring-greendark/10" />
-          <span className="absolute top-4 left-4 text-[10px] uppercase tracking-luxe-sm text-greendark/60 bg-ivory/80 px-2 py-1">
+          <span className="absolute top-4 left-4 label-meta text-greendark/60 bg-ivory/80 px-2 py-1">
             {product.subtitle}
           </span>
         </div>

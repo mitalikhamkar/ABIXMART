@@ -21,7 +21,7 @@ export default function ProductDetail() {
       <PageTransition>
         <div className="pt-32 pb-24 text-center">
           <p className="font-display text-3xl text-greendark">This product isn't available yet.</p>
-          <Link to="/shop" className="mt-6 inline-flex h-12 px-7 items-center bg-greendark text-ivory text-[11px] tracking-luxe-sm uppercase hover:bg-gold hover:text-greendark transition-colors">
+          <Link to="/shop" className="btn-primary mt-6">
             Back to shop
           </Link>
         </div>
@@ -82,7 +82,7 @@ export default function ProductDetail() {
               <dl className="mt-9 grid grid-cols-2 gap-x-8 gap-y-5 max-w-md">
                 {product.facts.map((f) => (
                   <div key={f.label} className="border-t border-greendark/15 pt-3">
-                    <dt className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">{f.label}</dt>
+                    <dt className="label-meta text-foreground/45">{f.label}</dt>
                     <dd className="mt-1 font-display text-lg text-greendark">{f.value}</dd>
                   </div>
                 ))}
@@ -90,7 +90,7 @@ export default function ProductDetail() {
 
               {/* Bundle options */}
               <div className="mt-9">
-                <span className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">Bundle options</span>
+                <span className="label-meta text-foreground/45">Bundle options</span>
                 <div className="mt-3 space-y-2">
                   {ritualBundles.map((b) => (
                     <button
@@ -200,7 +200,7 @@ export default function ProductDetail() {
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     className="relative z-10 h-full flex flex-col justify-end p-8 lg:p-12"
                   >
-                    <span className="text-[11px] uppercase tracking-luxe-sm text-gold">{activeTab.label}</span>
+                    <span className="label-meta text-gold-light">{activeTab.label}</span>
                     <h3 className="mt-4 font-display text-3xl lg:text-4xl text-ivory leading-tight">{activeTab.title}</h3>
                     <p className="mt-4 text-ivory/80 text-lg leading-relaxed max-w-md">{activeTab.body}</p>
                   </motion.div>

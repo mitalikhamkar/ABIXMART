@@ -138,3 +138,60 @@
     50% { transform: translateY(8px); opacity: 1; }
   }
 }
+
+@layer components {
+  /* ---------------------------------------------------------------
+     GLOBAL ABIXMART DESIGN SYSTEM
+     Reusable rules built entirely on existing tokens (greendark, gold,
+     resin, charcoal, espresso, clay, sand, ivory) — no new one-off
+     colors. Any page/component can adopt these instead of re-typing
+     the same long Tailwind strings.
+     --------------------------------------------------------------- */
+
+  /* Micro-labels: eyebrows, tab labels, step counters, field labels —
+     anywhere a small uppercase caption appears outside the <Eyebrow>
+     component itself. */
+  .label-meta {
+    @apply font-grotesk text-[10px] uppercase tracking-luxe-sm;
+  }
+
+  /* Buttons — shared geometry/type; color comes from a second class. */
+  .btn {
+    @apply inline-flex items-center justify-center h-14 px-8 text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none transition-colors duration-300 disabled:opacity-40 disabled:pointer-events-none;
+  }
+  /* Solid dark — the default primary action on light/sand/ivory surfaces. */
+  .btn-primary {
+    @apply btn bg-greendark text-ivory hover:bg-gold hover:text-greendark;
+  }
+  /* Solid light — the primary action on dark surfaces (espresso/clay/charcoal),
+     visually equivalent role to .btn-primary, just inverted for contrast. */
+  .btn-primary-inverse {
+    @apply btn bg-ivory text-charcoal hover:bg-resin hover:text-ivory;
+  }
+  /* Outlined — secondary action, works on light surfaces. */
+  .btn-outline {
+    @apply btn border border-greendark text-greendark bg-transparent hover:bg-greendark hover:text-ivory;
+  }
+  /* Outlined — secondary action, works on dark surfaces. */
+  .btn-outline-inverse {
+    @apply btn border border-ivory text-ivory bg-transparent hover:bg-ivory hover:text-charcoal;
+  }
+  /* Accent — resin-amber, reserved for a single emphasis action per view
+     (e.g. "Buy now" next to a plain "Add to cart"). Not for routine use. */
+  .btn-accent {
+    @apply btn bg-resin text-ivory hover:bg-gold-light hover:text-charcoal;
+  }
+
+  /* Cards — light-surface product/content tiles. */
+  .card-surface {
+    @apply bg-ivory border border-greendark/10;
+  }
+
+  /* Badges — small status/category tags. */
+  .badge {
+    @apply label-meta inline-flex items-center px-2.5 py-1 bg-greendark/8 text-greendark;
+  }
+  .badge-inverse {
+    @apply label-meta inline-flex items-center px-2.5 py-1 bg-ivory/15 text-ivory;
+  }
+}

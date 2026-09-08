@@ -86,7 +86,7 @@ export default function CheckoutModal() {
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[10px] uppercase tracking-luxe-sm text-foreground/45">
+              <p className="mt-2 label-meta text-foreground/45">
                 Step {step + 1} of {steps.length} — {steps[step]}
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function CheckoutModal() {
 function Field({ label, children }) {
   return (
     <label className="block">
-      <span className="text-[10px] uppercase tracking-luxe-sm text-foreground/45">{label}</span>
+      <span className="label-meta text-foreground/45">{label}</span>
       <div className="mt-2">{children}</div>
     </label>
   );
