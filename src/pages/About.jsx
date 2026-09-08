@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
 import AbixmartCircle from '@/components/abix/AbixmartCircle';
-import { storyStages, SOURCING_IMAGE, PURIFICATION_IMAGE, RITUAL_IMAGE, HERO_IMAGE, trustPillars } from '@/data/products';
+import MountainToRitual from '@/components/abix/MountainToRitual';
+import { SOURCING_IMAGE, HERO_IMAGE, trustPillars } from '@/data/products';
 
 export default function About() {
   const ref = useRef(null);
@@ -15,7 +16,7 @@ export default function About() {
   return (
     <PageTransition>
       {/* Hero — espresso */}
-      <section className="relative bg-espresso min-h-[80vh] flex items-end overflow-hidden grain">
+      <section ref={ref} className="relative bg-espresso min-h-[80vh] flex items-end overflow-hidden grain">
         <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
           <img src={HERO_IMAGE} alt="The Himalayas" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-espresso/50 via-espresso/40 to-espresso/85" />
@@ -75,37 +76,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* Process timeline — dark */}
-      <section ref={ref} className="relative bg-charcoal py-24 lg:py-36 overflow-hidden grain">
-        <div className="absolute inset-0 opacity-15">
-          <img src={PURIFICATION_IMAGE} alt="" className="h-full w-full object-cover" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-charcoal/90 to-charcoal" />
-        <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-10">
-          <Eyebrow light>The manufacturing journey</Eyebrow>
-          <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl text-ivory leading-[1.02] tracking-tight">
-            Ten stages, nothing hidden.
-          </h2>
-          <div className="mt-14 space-y-0">
-            {storyStages.map((s, i) => (
-              <motion.div
-                key={s.num}
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="grid grid-cols-[auto_1fr] gap-6 lg:gap-10 pb-10"
-              >
-                <span className="font-display text-3xl lg:text-4xl text-gold/80 leading-none pt-1">{s.num}</span>
-                <div className="border-l border-ivory/15 pl-6 lg:pl-10 pb-2">
-                  <h3 className="font-display text-2xl lg:text-3xl text-ivory">{s.title}</h3>
-                  <p className="mt-2 text-ivory/70 leading-relaxed max-w-xl">{s.text}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* From the Mountain to the Ritual — the manufacturing journey, now living only here */}
+      <MountainToRitual />
 
       {/* Quality / trust — ivory */}
       <section className="bg-ivory py-24 lg:py-36 border-t border-charcoal/5">

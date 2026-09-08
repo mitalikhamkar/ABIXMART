@@ -19,6 +19,15 @@ export const HERO_PRODUCT_IMAGE = heroJarCutout;
 // Real Himalayan environment photo for the hero background (supplied by you).
 export const HERO_BACKGROUND_IMAGE = heroBg;
 
+export const productBenefits = [
+  { title: 'Natural Energy Boost', body: 'Shilajit helps improve energy levels and reduces fatigue naturally.' },
+  { title: 'Strength & Stamina', body: 'Supports physical performance, stamina and muscle strength.' },
+  { title: 'Enhances Focus & Memory', body: 'Improves cognitive function, focus and mental clarity.' },
+  { title: 'Supports Immunity', body: 'Rich in minerals and fulvic acid that help strengthen immune health.' },
+  { title: '100% Pure Himalayan Shilajit', body: 'Sourced from high-altitude Himalayan rocks for maximum potency and purity.' },
+  { title: 'Overall Wellness', body: 'Promotes overall vitality, balance and well-being.' },
+];
+
 export const featuredProduct = {
   name: "ABIXMART Himalayan Shilajit",
   subtitle: "Pure Resin",
