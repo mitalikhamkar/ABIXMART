@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
+import AuthShell from '@/components/abix/AuthShell';
 import { useAuth } from '@/lib/AuthContext';
 import { mapAuthError } from '@/lib/authErrors';
 import registerImage from '@/assets/authentication/register.png';
@@ -21,13 +23,13 @@ function validate(form) {
 
 export default function CreateAccount() {
   const { register } = useAuth();
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({ fullName: '', phone: '', email: '', password: '', confirmPassword: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [verifyIssue, setVerifyIssue] = useState(null);
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -42,13 +44,14 @@ export default function CreateAccount() {
 
     setLoading(true);
     try {
-      await register({
+      const { verificationError } = await register({
         fullName: form.fullName.trim(),
         phone: form.phone.replace(/\D/g, ''),
         email: form.email.trim(),
         password: form.password,
       });
       setSubmitted(true);
+      setVerifyIssue(verificationError ? mapAuthError(verificationError) : null);
     } catch (err) {
       setFormError(mapAuthError(err));
     } finally {
@@ -56,90 +59,107 @@ export default function CreateAccount() {
     }
   };
 
+  // Compact field: label + input share one row's rhythm rather than
+  // each stacking with its own generous margin — this, plus tighter
+  // vertical gaps, is what keeps the 5-field desktop form from forcing
+  // scroll inside the panel.
+  const Field = ({ label, error, children, extra }) => (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="label-meta text-charcoal/50">{label}</label>
+        {extra}
+      </div>
+      {children}
+      {error && <p className="mt-1 text-[11px] text-red-600">{error}</p>}
+    </div>
+  );
+
   return (
     <PageTransition>
-      <section className="min-h-[100svh] grid lg:grid-cols-2">
-        <div className="relative h-[32vh] lg:h-auto order-1 bg-[#241b13]">
-          <img src={registerImage} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1c150f]/70 via-[#1c150f]/10 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#1c150f]/10 lg:to-[#1c150f]/60" />
-        </div>
-
-        <div className="order-2 flex items-center bg-ivory py-14 lg:py-10">
-          <div className="mx-auto max-w-md w-full px-6 lg:px-14">
-            <span className="block text-[11px] font-medium uppercase tracking-luxe-sm text-gold">ABIXMART Account</span>
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl text-greendark leading-[1.05] tracking-tight">
-              Create Your ABIXMART Account
-            </h1>
-            <p className="mt-4 text-foreground/60 leading-relaxed">
-              Save your preferences, track your orders and stay connected with ABIXMART.
-            </p>
-
-            {submitted ? (
-              <div className="mt-8 border border-greendark/15 bg-sand p-6">
-                <p className="text-greendark leading-relaxed">
-                  Your account has been created. We've sent a verification email to{' '}
-                  <span className="font-medium">{form.email}</span> — please verify your address to unlock the full
-                  ABIXMART experience.
-                </p>
-                <Link to="/login" className="btn-primary mt-6 inline-flex">
-                  Go to Login
-                </Link>
+      <AuthShell
+        image={registerImage}
+        imageAlt=""
+        eyebrow="ABIXMART Account"
+        title={submitted ? 'Account Created' : 'Create Your Account'}
+        subtitle={submitted ? null : 'A more considered way to shop wellness — starting with your own space.'}
+        footer={
+          submitted ? null : (
+            <>
+              Already have an account?{' '}
+              <Link to="/login" className="text-resin font-medium hover:text-charcoal transition-colors">
+                Login
+              </Link>
+            </>
+          )
+        }
+      >
+        {submitted ? (
+          <div>
+            {verifyIssue ? (
+              <div className="border border-resin/30 bg-resin/8 p-5">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle size={18} className="text-resin shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-charcoal font-medium">Your account was created.</p>
+                    <p className="mt-1.5 text-sm text-foreground/65 leading-relaxed">
+                      We couldn't send the verification email right now: {verifyIssue} You can resend it anytime
+                      from your Account page.
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : (
-              <>
-                {formError && (
-                  <div className="mt-6 border border-red-300 bg-red-50 text-red-700 text-sm px-4 py-3">{formError}</div>
-                )}
-
-                <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxe-sm text-greendark/50 mb-1">Full Name</label>
-                    <input value={form.fullName} onChange={update('fullName')} placeholder="Your name" className="express-input" />
-                    {fieldErrors.fullName && <p className="mt-1 text-xs text-red-600">{fieldErrors.fullName}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxe-sm text-greendark/50 mb-1">Phone Number</label>
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) })}
-                      inputMode="numeric"
-                      placeholder="10-digit mobile"
-                      className="express-input"
-                    />
-                    {fieldErrors.phone && <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxe-sm text-greendark/50 mb-1">Email</label>
-                    <input type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" className="express-input" />
-                    {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxe-sm text-greendark/50 mb-1">Password</label>
-                    <input type="password" value={form.password} onChange={update('password')} placeholder="At least 8 characters" className="express-input" />
-                    {fieldErrors.password && <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxe-sm text-greendark/50 mb-1">Confirm Password</label>
-                    <input type="password" value={form.confirmPassword} onChange={update('confirmPassword')} placeholder="••••••••" className="express-input" />
-                    {fieldErrors.confirmPassword && <p className="mt-1 text-xs text-red-600">{fieldErrors.confirmPassword}</p>}
-                  </div>
-
-                  <button type="submit" disabled={loading} className="btn-primary w-full">
-                    {loading ? 'Creating Account…' : 'Create Account'}
-                  </button>
-                </form>
-
-                <p className="mt-8 text-sm text-foreground/60">
-                  Already have an account?{' '}
-                  <Link to="/login" className="text-greendark font-medium hover:text-gold transition-colors">
-                    Login
-                  </Link>
-                </p>
-              </>
+              <p className="text-charcoal leading-relaxed">
+                A verification email is on its way to <span className="font-medium">{form.email}</span>. Check your
+                inbox — and your spam or promotions folder — then verify to unlock the full ABIXMART experience.
+              </p>
             )}
+            <Link to="/login" className="btn-primary mt-6 inline-flex">
+              Go to Login
+            </Link>
           </div>
-        </div>
-      </section>
+        ) : (
+          <>
+            {formError && (
+              <div className="mb-4 border border-red-300 bg-red-50 text-red-700 text-sm px-4 py-2.5">{formError}</div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              <Field label="Full Name" error={fieldErrors.fullName}>
+                <input value={form.fullName} onChange={update('fullName')} placeholder="Your name" className="express-input" />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Phone Number" error={fieldErrors.phone}>
+                  <input
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) })}
+                    inputMode="numeric"
+                    placeholder="10-digit mobile"
+                    className="express-input"
+                  />
+                </Field>
+                <Field label="Email" error={fieldErrors.email}>
+                  <input type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" className="express-input" />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Password" error={fieldErrors.password}>
+                  <input type="password" value={form.password} onChange={update('password')} placeholder="8+ characters" className="express-input" />
+                </Field>
+                <Field label="Confirm" error={fieldErrors.confirmPassword}>
+                  <input type="password" value={form.confirmPassword} onChange={update('confirmPassword')} placeholder="••••••••" className="express-input" />
+                </Field>
+              </div>
+
+              <button type="submit" disabled={loading} className="btn-primary w-full mt-1">
+                {loading ? 'Creating Account…' : 'Create Account'}
+              </button>
+            </form>
+          </>
+        )}
+      </AuthShell>
     </PageTransition>
   );
 }

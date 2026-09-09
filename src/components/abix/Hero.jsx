@@ -138,10 +138,10 @@ export default function Hero() {
             </Link>
             <Link
               ref={secondaryCtaRef}
-              to="/about"
+              to="/create-account"
               className="inline-flex items-center justify-center h-12 lg:h-14 px-7 lg:px-9 border border-ivory/40 text-ivory text-[11px] lg:text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none hover:bg-ivory/10 transition-colors duration-300"
             >
-              Discover Our Story
+              Create Account
             </Link>
           </div>
         </div>

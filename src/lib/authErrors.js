@@ -14,10 +14,12 @@ export function mapAuthError(error) {
     case 'auth/invalid-credential':
       return 'Incorrect email or password.';
     case 'auth/too-many-requests':
-      return 'Too many attempts. Please wait a moment and try again.';
+      return 'Too many attempts. Please wait a few minutes and try again.';
     case 'auth/network-request-failed':
       return 'Network error. Please check your connection and try again.';
+    case 'auth/quota-exceeded':
+      return 'Email sending limit reached for now. Please try again later.';
     default:
-      return 'Something went wrong. Please try again.';
+      return `Something went wrong${code ? ` (${code})` : ''}. Please try again.`;
   }
 }

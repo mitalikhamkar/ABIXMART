@@ -127,7 +127,7 @@
   }
 
   .express-input {
-    @apply w-full bg-transparent border-b border-greendark/25 py-3 text-greendark placeholder:text-foreground/35 focus:outline-none focus:border-gold transition-colors text-base;
+    @apply w-full bg-transparent border-b border-charcoal/25 py-3 text-charcoal placeholder:text-foreground/35 focus:outline-none focus:border-resin transition-colors text-base;
   }
 
   .scroll-hint {
@@ -142,10 +142,11 @@
 @layer components {
   /* ---------------------------------------------------------------
      GLOBAL ABIXMART DESIGN SYSTEM
-     Reusable rules built entirely on existing tokens (greendark, gold,
-     resin, charcoal, espresso, clay, sand, ivory) — no new one-off
-     colors. Any page/component can adopt these instead of re-typing
-     the same long Tailwind strings.
+     Reusable rules built entirely on existing tokens (charcoal, resin,
+     espresso, clay, sand, ivory, gold-light) — no new one-off colors.
+     Not used by any Home-page component (those use inline utilities
+     directly); this layer exists for Shop/About/Support/ProductDetail/
+     Cart/Checkout/Account/auth pages.
      --------------------------------------------------------------- */
 
   /* Micro-labels: eyebrows, tab labels, step counters, field labels —
@@ -161,7 +162,7 @@
   }
   /* Solid dark — the default primary action on light/sand/ivory surfaces. */
   .btn-primary {
-    @apply btn bg-greendark text-ivory hover:bg-gold hover:text-greendark;
+    @apply btn bg-charcoal text-ivory hover:bg-resin hover:text-ivory;
   }
   /* Solid light — the primary action on dark surfaces (espresso/clay/charcoal),
      visually equivalent role to .btn-primary, just inverted for contrast. */
@@ -170,7 +171,7 @@
   }
   /* Outlined — secondary action, works on light surfaces. */
   .btn-outline {
-    @apply btn border border-greendark text-greendark bg-transparent hover:bg-greendark hover:text-ivory;
+    @apply btn border border-charcoal text-charcoal bg-transparent hover:bg-charcoal hover:text-ivory;
   }
   /* Outlined — secondary action, works on dark surfaces. */
   .btn-outline-inverse {
@@ -184,12 +185,12 @@
 
   /* Cards — light-surface product/content tiles. */
   .card-surface {
-    @apply bg-ivory border border-greendark/10;
+    @apply bg-ivory border border-charcoal/10;
   }
 
   /* Badges — small status/category tags. */
   .badge {
-    @apply label-meta inline-flex items-center px-2.5 py-1 bg-greendark/8 text-greendark;
+    @apply label-meta inline-flex items-center px-2.5 py-1 bg-charcoal/8 text-charcoal;
   }
   .badge-inverse {
     @apply label-meta inline-flex items-center px-2.5 py-1 bg-ivory/15 text-ivory;
