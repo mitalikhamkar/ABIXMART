@@ -89,6 +89,11 @@
   .font-heading { font-family: var(--font-heading); }
   .font-grotesk { font-family: var(--font-grotesk); }
 
+  /* Hides the scrollbar on horizontally-scrollable strips (e.g. the
+     Account page's mobile nav tabs) while keeping them scrollable. */
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
   /* Modern e-commerce numeral style for prices, quantities and other
      prominent UI numbers — deliberately sans-serif (not the editorial
      Cormorant Garamond used for headings) so digits and the ₹ symbol
@@ -128,6 +133,15 @@
 
   .express-input {
     @apply w-full bg-transparent border-b border-charcoal/25 py-3 text-charcoal placeholder:text-foreground/35 focus:outline-none focus:border-resin transition-colors text-base;
+  }
+
+  /* Same role as .express-input, for the translucent dark auth panels
+     (Login/Create Account/Forgot Password/AuthAction) sitting over the
+     cinematic mineral/resin photography — ivory text on a light-ivory
+     underline so it reads against a dark glass surface instead of a
+     white card. */
+  .express-input-inverse {
+    @apply w-full bg-transparent border-b border-ivory/25 py-3 text-ivory placeholder:text-ivory/35 focus:outline-none focus:border-gold-light transition-colors text-base;
   }
 
   .scroll-hint {

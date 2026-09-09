@@ -1,42 +1,43 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import logo from '@/assets/logo/Abixmart-header.png';
 
+/**
+ * Shared visual shell for Login / Create Account / Forgot Password.
+ *
+ * Full-bleed background photo with a floating, translucent, backdrop-blur
+ * surface holding the form — NOT an image-on-one-side / form-on-the-other
+ * split, and NOT a plain white card. The form is meant to read as part of
+ * the same photographic environment, not a UI element placed on top of it.
+ *
+ * `Abixmart.jpg` has a white background; `mix-blend-multiply` drops that
+ * white out against the dark backdrop so it doesn't read as a stray white
+ * rectangle, without needing a separate pre-processed logo asset.
+ */
 export default function AuthShell({ image, imageAlt = '', eyebrow, title, subtitle, footer, children }) {
   return (
-    <div className="relative min-h-[100svh] w-full overflow-hidden bg-charcoal">
-      <motion.div
-        initial={{ scale: 1.06 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 8, ease: 'easeOut' }}
-        className="absolute inset-0"
-      >
+    <section className="relative min-h-[100svh] flex items-center justify-center py-14 sm:py-16 overflow-hidden bg-charcoal">
+      {/* Full-bleed environment */}
+      <div className="absolute inset-0">
         <img src={image} alt={imageAlt} className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-charcoal/75 via-charcoal/45 to-espresso/70" />
-        <div className="absolute inset-0 grain" />
-      </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/75 via-charcoal/45 to-charcoal/85" />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-transparent to-transparent" />
+        <div className="absolute inset-0 grain opacity-[0.05]" />
+      </div>
 
-      <div className="relative z-10 min-h-[100svh] flex items-center justify-center px-6 py-16 lg:py-0">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
-          className="w-full max-w-[420px] bg-ivory/90 backdrop-blur-md border border-ivory/20 shadow-2xl px-7 py-9 sm:px-10 sm:py-11"
-        >
-          <span className="label-meta text-resin">{eyebrow}</span>
-          <h1 className="mt-2 font-display text-3xl sm:text-[34px] leading-tight text-charcoal tracking-tight">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-2 text-[13px] text-foreground/60 leading-relaxed max-w-[36ch]">{subtitle}</p>
-          )}
+      {/* Floating translucent surface */}
+      <div className="relative z-10 w-full max-w-md mx-5 sm:mx-6">
+        <div className="bg-charcoal/50 backdrop-blur-xl border border-ivory/15 shadow-[0_20px_60px_rgba(0,0,0,0.45)] p-7 sm:p-10">
+          <img src={logo} alt="ABIXMART" className="h-8 w-auto mb-6 mix-blend-multiply" />
+
+          {eyebrow && <span className="label-meta text-gold-light">{eyebrow}</span>}
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl text-ivory leading-[1.05] tracking-tight">{title}</h1>
+          {subtitle && <p className="mt-3 text-ivory/65 text-sm leading-relaxed">{subtitle}</p>}
 
           <div className="mt-7">{children}</div>
 
-          {footer && (
-            <p className="mt-7 text-center text-[13px] text-foreground/55">{footer}</p>
-          )}
-        </motion.div>
+          {footer && <p className="mt-7 text-center text-sm text-ivory/55">{footer}</p>}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

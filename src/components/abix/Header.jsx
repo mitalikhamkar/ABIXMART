@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Search, Heart, ShoppingBag, User, LogOut } from 'lucide-react';
 import { useShop } from '@/lib/ShopContext';
 import { useAuth } from '@/lib/AuthContext';
+import logo from '@/assets/logo/Abixmart-header.png';
 
 const navLinks = [
   { label: 'Home', to: '/' },
@@ -60,10 +61,23 @@ export default function Header() {
         }`}
       >
         <nav className="mx-auto max-w-7xl px-6 lg:px-10 h-16 lg:h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <span className="font-display text-2xl lg:text-[26px] tracking-tight leading-none text-ivory">
-              ABIX<span className="text-gold-light">MART</span>
-            </span>
+          <Link to="/" className="flex items-center" aria-label="ABIXMART home">
+            {/*
+              NOTE on contrast: the source artwork's wordmark is dark
+              green with no light/ivory variant baked in, so against
+              this dark header it reads as visible-but-dim rather than
+              crisp white-on-dark like the old text logo did. The gold
+              ribbon and leaf highlights still pop. If you want a
+              brighter version for this dark placement, ask for an
+              ivory-recolored variant of the same artwork — it's a
+              straightforward follow-up, not done here since it wasn't
+              requested.
+            */}
+            <img
+              src={logo}
+              alt="ABIXMART"
+              className="h-11 lg:h-[52px] w-auto object-contain"
+            />
           </Link>
 
           <div className="hidden md:flex items-center gap-9">

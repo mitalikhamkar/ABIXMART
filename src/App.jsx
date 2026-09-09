@@ -13,6 +13,7 @@ import Login from '@/pages/Login';
 import CreateAccount from '@/pages/CreateAccount';
 import ForgotPassword from '@/pages/ForgotPassword';
 import Account from '@/pages/Account';
+import AuthAction from '@/pages/AuthAction';
 import SiteLayout from '@/components/abix/SiteLayout';
 import { ShopProvider } from '@/lib/ShopContext';
 import { AuthProvider } from '@/lib/AuthContext';
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/create-account" element={<CreateAccount />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/auth/action" element={<AuthAction />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
             </Routes>

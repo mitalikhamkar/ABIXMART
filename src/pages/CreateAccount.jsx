@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
-import AuthShell from '@/components/abix/AuthShell';
+import CinematicAuthShell from '@/components/abix/CinematicAuthShell';
+import GoogleButton from '@/components/abix/GoogleButton';
 import { useAuth } from '@/lib/AuthContext';
 import { mapAuthError } from '@/lib/authErrors';
 import registerImage from '@/assets/authentication/register.png';
@@ -21,8 +22,24 @@ function validate(form) {
   return errors;
 }
 
+// Hoisted outside the component so it keeps a stable identity across
+// re-renders — this is what fixes the focus-loss-after-one-character bug.
+function Field({ label, error, children, extra }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="label-meta text-ivory/50">{label}</label>
+        {extra}
+      </div>
+      {children}
+      {error && <p className="mt-1 text-[11px] text-red-300">{error}</p>}
+    </div>
+  );
+}
+
 export default function CreateAccount() {
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({ fullName: '', phone: '', email: '', password: '', confirmPassword: '' });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -30,8 +47,23 @@ export default function CreateAccount() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [verifyIssue, setVerifyIssue] = useState(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const handleGoogle = async () => {
+    if (googleLoading) return;
+    setFormError('');
+    setGoogleLoading(true);
+    try {
+      const user = await loginWithGoogle();
+      if (user) navigate('/account');
+    } catch (err) {
+      setFormError(mapAuthError(err));
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const update = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,30 +85,19 @@ export default function CreateAccount() {
       setSubmitted(true);
       setVerifyIssue(verificationError ? mapAuthError(verificationError) : null);
     } catch (err) {
-      setFormError(mapAuthError(err));
+      setFormError(
+        err?.code === 'abixmart/profile-write-failed'
+          ? "Your account was created, but we couldn't save your profile details. Please contact support."
+          : mapAuthError(err)
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Compact field: label + input share one row's rhythm rather than
-  // each stacking with its own generous margin — this, plus tighter
-  // vertical gaps, is what keeps the 5-field desktop form from forcing
-  // scroll inside the panel.
-  const Field = ({ label, error, children, extra }) => (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <label className="label-meta text-charcoal/50">{label}</label>
-        {extra}
-      </div>
-      {children}
-      {error && <p className="mt-1 text-[11px] text-red-600">{error}</p>}
-    </div>
-  );
-
   return (
     <PageTransition>
-      <AuthShell
+      <CinematicAuthShell
         image={registerImage}
         imageAlt=""
         eyebrow="ABIXMART Account"
@@ -86,7 +107,7 @@ export default function CreateAccount() {
           submitted ? null : (
             <>
               Already have an account?{' '}
-              <Link to="/login" className="text-resin font-medium hover:text-charcoal transition-colors">
+              <Link to="/login" className="text-gold-light font-medium hover:text-ivory transition-colors">
                 Login
               </Link>
             </>
@@ -96,12 +117,12 @@ export default function CreateAccount() {
         {submitted ? (
           <div>
             {verifyIssue ? (
-              <div className="border border-resin/30 bg-resin/8 p-5">
+              <div className="border border-gold-light/30 bg-ivory/10 p-5">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle size={18} className="text-resin shrink-0 mt-0.5" />
+                  <AlertTriangle size={18} className="text-gold-light shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-charcoal font-medium">Your account was created.</p>
-                    <p className="mt-1.5 text-sm text-foreground/65 leading-relaxed">
+                    <p className="text-ivory font-medium">Your account was created.</p>
+                    <p className="mt-1.5 text-sm text-ivory/65 leading-relaxed">
                       We couldn't send the verification email right now: {verifyIssue} You can resend it anytime
                       from your Account page.
                     </p>
@@ -109,57 +130,65 @@ export default function CreateAccount() {
                 </div>
               </div>
             ) : (
-              <p className="text-charcoal leading-relaxed">
+              <p className="text-ivory leading-relaxed">
                 A verification email is on its way to <span className="font-medium">{form.email}</span>. Check your
                 inbox — and your spam or promotions folder — then verify to unlock the full ABIXMART experience.
               </p>
             )}
-            <Link to="/login" className="btn-primary mt-6 inline-flex">
+            <Link to="/login" className="btn-primary-inverse mt-6 inline-flex">
               Go to Login
             </Link>
           </div>
         ) : (
           <>
             {formError && (
-              <div className="mb-4 border border-red-300 bg-red-50 text-red-700 text-sm px-4 py-2.5">{formError}</div>
+              <div className="mb-4 border border-red-400/40 bg-red-950/30 text-red-200 text-sm px-4 py-2.5">{formError}</div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <Field label="Full Name" error={fieldErrors.fullName}>
-                <input value={form.fullName} onChange={update('fullName')} placeholder="Your name" className="express-input" />
+                <input value={form.fullName} onChange={update('fullName')} placeholder="Your name" className="express-input-inverse" />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Phone Number" error={fieldErrors.phone}>
                   <input
                     value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) })}
+                    onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) }))}
                     inputMode="numeric"
                     placeholder="10-digit mobile"
-                    className="express-input"
+                    className="express-input-inverse"
                   />
                 </Field>
                 <Field label="Email" error={fieldErrors.email}>
-                  <input type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" className="express-input" />
+                  <input type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" className="express-input-inverse" />
                 </Field>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Password" error={fieldErrors.password}>
-                  <input type="password" value={form.password} onChange={update('password')} placeholder="8+ characters" className="express-input" />
+                  <input type="password" value={form.password} onChange={update('password')} placeholder="8+ characters" className="express-input-inverse" />
                 </Field>
                 <Field label="Confirm" error={fieldErrors.confirmPassword}>
-                  <input type="password" value={form.confirmPassword} onChange={update('confirmPassword')} placeholder="••••••••" className="express-input" />
+                  <input type="password" value={form.confirmPassword} onChange={update('confirmPassword')} placeholder="••••••••" className="express-input-inverse" />
                 </Field>
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full mt-1">
+              <button type="submit" disabled={loading} className="btn-primary-inverse w-full mt-1">
                 {loading ? 'Creating Account…' : 'Create Account'}
               </button>
             </form>
+
+            <div className="my-6 flex items-center gap-4">
+              <span className="h-px flex-1 bg-ivory/15" />
+              <span className="label-meta text-ivory/40">Or</span>
+              <span className="h-px flex-1 bg-ivory/15" />
+            </div>
+
+            <GoogleButton onClick={handleGoogle} loading={googleLoading} />
           </>
         )}
-      </AuthShell>
+      </CinematicAuthShell>
     </PageTransition>
   );
 }

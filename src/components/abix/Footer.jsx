@@ -2,9 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, MessageCircle } from 'lucide-react';
 import { footerLinks } from '@/data/products';
+import logo from '@/assets/logo/Abixmart-full.png';
 
-// Minimal personality — plain utility footer. The one signup moment on the
-// page lives in AbixmartCircle; this doesn't repeat it.
 export default function Footer() {
   return (
     <footer id="footer" className="bg-charcoal text-ivory pt-16 lg:pt-20 pb-10 grain">
@@ -12,8 +11,8 @@ export default function Footer() {
         {/* Links */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-10 py-16">
           <div className="col-span-2 lg:col-span-2">
-            <Link to="/" className="font-display text-3xl tracking-tight inline-block">
-              ABIX<span className="text-gold">MART</span>
+            <Link to="/" className="inline-block" aria-label="ABIXMART home">
+              <img src={logo} alt="ABIXMART" className="h-28 w-auto object-contain" />
             </Link>
             <p className="mt-4 text-sm text-ivory/55 leading-relaxed max-w-xs">
               Himalayan Wellness<br />Ancient origin. Modern experience.
