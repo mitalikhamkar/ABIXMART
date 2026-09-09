@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Search, Heart, ShoppingBag, User } from 'lucide-react';
+import { Menu, X, Search, Heart, ShoppingBag, User, LogOut } from 'lucide-react';
 import { useShop } from '@/lib/ShopContext';
+import { useAuth } from '@/lib/AuthContext';
 
 const navLinks = [
   { label: 'Home', to: '/' },
@@ -13,9 +14,13 @@ const navLinks = [
 
 export default function Header() {
   const { cartCount, wishlistCount, openCart, openSearch } = useShop();
+  const { user, profile, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -24,7 +29,25 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [location.pathname]);
+  useEffect(() => { setOpen(false); setAccountMenuOpen(false); }, [location.pathname]);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    setAccountMenuOpen(false);
+    await logout();
+    navigate('/');
+  };
+
+  const initial = (profile?.fullName || user?.email || '?').charAt(0).toUpperCase();
 
   const onHome = location.pathname === '/';
   const transparent = onHome && !scrolled;
@@ -98,13 +121,51 @@ export default function Header() {
                 </span>
               )}
             </button>
-            <Link
-              to="/login"
-              className="hidden sm:inline-flex items-center gap-2 h-10 ml-2 px-5 bg-greendark text-ivory text-[12px] font-medium tracking-luxe-sm uppercase rounded-none hover:bg-gold hover:text-greendark transition-colors duration-300"
-            >
-              <User size={14} />
-              Account
-            </Link>
+            {user ? (
+              <div className="relative" ref={accountMenuRef}>
+                <button
+                  onClick={() => setAccountMenuOpen((v) => !v)}
+                  aria-label="Account menu"
+                  className="ml-2 h-9 w-9 rounded-full bg-greendark text-ivory font-display text-sm flex items-center justify-center hover:bg-gold transition-colors duration-300"
+                >
+                  {initial}
+                </button>
+                <AnimatePresence>
+                  {accountMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.18 }}
+                      className="absolute right-0 mt-2 w-48 bg-ivory border border-greendark/10 shadow-lg py-2 z-50"
+                    >
+                      <Link
+                        to="/account"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-greendark hover:bg-sand transition-colors"
+                      >
+                        <User size={14} />
+                        My Account
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-greendark hover:bg-sand transition-colors"
+                      >
+                        <LogOut size={14} />
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden sm:inline-flex items-center gap-2 h-10 ml-2 px-5 bg-greendark text-ivory text-[12px] font-medium tracking-luxe-sm uppercase rounded-none hover:bg-gold hover:text-greendark transition-colors duration-300"
+              >
+                <User size={14} />
+                Login
+              </Link>
+            )}
             <button
               onClick={() => setOpen((v) => !v)}
               className={`md:hidden h-10 w-10 inline-flex items-center justify-center ${transparent ? 'text-ivory' : 'text-greendark'}`}
@@ -143,12 +204,29 @@ export default function Header() {
                   </Link>
                 </motion.div>
               ))}
-              <Link
-                to="/login"
-                className="mt-6 h-14 inline-flex items-center justify-center bg-greendark text-ivory text-sm tracking-luxe-sm uppercase"
-              >
-                Account
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to="/account"
+                    className="mt-6 h-14 inline-flex items-center justify-center gap-2 bg-greendark text-ivory text-sm tracking-luxe-sm uppercase"
+                  >
+                    <User size={16} /> My Account
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="mt-3 h-14 inline-flex items-center justify-center gap-2 border border-greendark/20 text-greendark text-sm tracking-luxe-sm uppercase"
+                  >
+                    <LogOut size={16} /> Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="mt-6 h-14 inline-flex items-center justify-center bg-greendark text-ivory text-sm tracking-luxe-sm uppercase"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
