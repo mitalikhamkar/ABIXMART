@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTransition from '@/components/abix/PageTransition';
 import CinematicAuthShell from '@/components/abix/CinematicAuthShell';
 import GoogleButton from '@/components/abix/GoogleButton';
@@ -10,6 +10,12 @@ import loginImage from '@/assets/authentication/login.png';
 export default function Login() {
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // NEW: set by AuthAction.jsx's Continue button when the user verified
+  // their email in a session/browser with no active login — lets them
+  // know *why* they landed here instead of straight on their profile.
+  const justVerified = searchParams.get('verified') === '1';
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -68,6 +74,12 @@ export default function Login() {
           </>
         }
       >
+        {justVerified && !error && (
+          <div className="mb-5 border border-gold-light/30 bg-ivory/10 text-ivory/90 text-sm px-4 py-3">
+            Your email is verified. Log in to continue to your account.
+          </div>
+        )}
+
         {error && (
           <div className="mb-5 border border-red-400/40 bg-red-950/30 text-red-200 text-sm px-4 py-2.5">{error}</div>
         )}

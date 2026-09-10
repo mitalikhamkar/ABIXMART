@@ -1,22 +1,9 @@
 import React from 'react';
 import logo from '@/assets/logo/Abixmart-header.png';
 
-/**
- * Shared visual shell for Login / Create Account / Forgot Password.
- *
- * Full-bleed background photo with a floating, translucent, backdrop-blur
- * surface holding the form — NOT an image-on-one-side / form-on-the-other
- * split, and NOT a plain white card. The form is meant to read as part of
- * the same photographic environment, not a UI element placed on top of it.
- *
- * `Abixmart.jpg` has a white background; `mix-blend-multiply` drops that
- * white out against the dark backdrop so it doesn't read as a stray white
- * rectangle, without needing a separate pre-processed logo asset.
- */
 export default function AuthShell({ image, imageAlt = '', eyebrow, title, subtitle, footer, children }) {
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center py-14 sm:py-16 overflow-hidden bg-charcoal">
-      {/* Full-bleed environment */}
       <div className="absolute inset-0">
         <img src={image} alt={imageAlt} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/75 via-charcoal/45 to-charcoal/85" />
@@ -24,7 +11,6 @@ export default function AuthShell({ image, imageAlt = '', eyebrow, title, subtit
         <div className="absolute inset-0 grain opacity-[0.05]" />
       </div>
 
-      {/* Floating translucent surface */}
       <div className="relative z-10 w-full max-w-md mx-5 sm:mx-6">
         <div className="bg-charcoal/50 backdrop-blur-xl border border-ivory/15 shadow-[0_20px_60px_rgba(0,0,0,0.45)] p-7 sm:p-10">
           <img src={logo} alt="ABIXMART" className="h-8 w-auto mb-6 mix-blend-multiply" />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
@@ -49,8 +49,17 @@ export default function CreateAccount() {
   const [verifyIssue, setVerifyIssue] = useState(null);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // NEW: refs instead of relying solely on `loading` state to block
+  // double-submits. State updates are async/batched, so a fast double
+  // click (or double Enter-press) could fire handleSubmit/handleGoogle
+  // twice before `loading` visually flips to true on the button. A ref
+  // updates immediately and closes that race completely.
+  const submittingRef = useRef(false);
+  const googleSubmittingRef = useRef(false);
+
   const handleGoogle = async () => {
-    if (googleLoading) return;
+    if (googleSubmittingRef.current) return;
+    googleSubmittingRef.current = true;
     setFormError('');
     setGoogleLoading(true);
     try {
@@ -60,6 +69,7 @@ export default function CreateAccount() {
       setFormError(mapAuthError(err));
     } finally {
       setGoogleLoading(false);
+      googleSubmittingRef.current = false;
     }
   };
 
@@ -67,13 +77,14 @@ export default function CreateAccount() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return;
+    if (submittingRef.current) return;
 
     const errors = validate(form);
     setFieldErrors(errors);
     setFormError('');
     if (Object.keys(errors).length > 0) return;
 
+    submittingRef.current = true;
     setLoading(true);
     try {
       const { verificationError } = await register({
@@ -85,6 +96,8 @@ export default function CreateAccount() {
       setSubmitted(true);
       setVerifyIssue(verificationError ? mapAuthError(verificationError) : null);
     } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[ABIXMART] CreateAccount register() failed:', err?.code, err?.message, err);
       setFormError(
         err?.code === 'abixmart/profile-write-failed'
           ? "Your account was created, but we couldn't save your profile details. Please contact support."
@@ -92,6 +105,7 @@ export default function CreateAccount() {
       );
     } finally {
       setLoading(false);
+      submittingRef.current = false;
     }
   };
 

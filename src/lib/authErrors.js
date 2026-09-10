@@ -17,6 +17,8 @@ export function mapAuthError(error) {
       return 'Too many attempts. Please wait a few minutes and try again.';
     case 'auth/network-request-failed':
       return 'Network error. Please check your connection and try again.';
+    case 'abixmart/already-verified':
+      return 'Your email is already verified.';
     case 'auth/quota-exceeded':
       return 'Email sending limit reached for now. Please try again later.';
     case 'auth/popup-closed-by-user':
