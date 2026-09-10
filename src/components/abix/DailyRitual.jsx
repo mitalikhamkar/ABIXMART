@@ -1,3 +1,4 @@
+// src/components/abix/DailyRitual.jsx
 import React, { useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
@@ -28,11 +29,10 @@ import morningToNightImg from '@/assets/HowToUse/Morning to night.png';
  * from here; adjust the specific key if one image needs it once you see
  * this live against the real files.
  *
- * The section's background is one continuous warm-dark gradient — it
- * never brightens to ivory. It starts matching MountainToRitual's
- * charcoal, peaks at a warm clay tone in the middle (the "warm earth /
- * resin" beat), and settles back to the same espresso tone FeaturedProduct
- * now uses, so the handoff into the next section has no visible seam.
+ * The section's background is one continuous mineral gradient — deep
+ * charcoal at the edges, warm stone/graphite at the peak — matching the
+ * ABIXMART charcoal/mineral/resin system used on Shop/About/ProductDetail.
+ * It never brightens to ivory and never reads as coffee-brown.
  *
  * Mobile has its own explicit order (number -> image -> action text),
  * not the desktop split reflowed.
@@ -210,11 +210,10 @@ export default function DailyRitual() {
     <section
       className="pt-24 pb-24 lg:pt-32 lg:pb-40"
       style={{
-        // Charcoal (matches MountainToRitual) -> espresso -> clay (the warm
-        // "earth/resin" peak) -> back to espresso (matches FeaturedProduct's
-        // new background) — never brightens to ivory/white at any point.
+        // Deep charcoal at the edges -> graphite/mineral-stone at the
+        // peak -> back to charcoal — mineral system, not coffee-brown.
         background:
-          'linear-gradient(180deg, #17140F 0%, #2E2015 28%, #5A4632 55%, #2E2015 100%)',
+          'linear-gradient(180deg, #151417 0%, #1E1C1F 28%, #322E2C 55%, #1E1C1F 100%)',
       }}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-10">
@@ -304,7 +303,7 @@ export default function DailyRitual() {
                           style={{
                             objectFit: 'cover',
                             objectPosition: OBJECT_POSITION[chapter.key],
-                            filter: 'sepia(0.04) saturate(1.05) contrast(1.02)',
+                            filter: 'saturate(1.02) contrast(1.02)',
                           }}
                         />
                       </div>

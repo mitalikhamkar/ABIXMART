@@ -56,9 +56,9 @@ export default function FeaturedProduct() {
   );
 
   return (
-    <section ref={sectionRef} id="featured" className="relative bg-espresso py-24 lg:py-32 overflow-hidden">
-      {/* restrained material glow — not a busy background */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(139,83,38,0.18),transparent_60%)]" />
+    <section ref={sectionRef} id="featured" className="relative bg-[#1E1C1F] py-24 lg:py-32 overflow-hidden">
+      {/* restrained material glow — amber/resin, not brown */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(190,138,75,0.14),transparent_60%)]" />
 
       <div className="relative mx-auto max-w-6xl px-6 lg:px-10 text-center">
         <span className="block font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-gold-light">
@@ -85,7 +85,7 @@ export default function FeaturedProduct() {
           {/* soft radial glow, hugging the product rather than an outline around it */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(closest-side, rgba(214,158,89,0.16), transparent 72%)' }}
+            style={{ background: 'radial-gradient(closest-side, rgba(211,164,103,0.16), transparent 72%)' }}
           />
 
           <div ref={imageRef} className="relative w-[64%] sm:w-[58%]">
@@ -114,7 +114,7 @@ export default function FeaturedProduct() {
           <button
             onClick={() => setQuickViewOpen(true)}
             aria-label="Quick view — explore product"
-            className="group inline-flex items-center gap-3 h-14 px-8 border border-gold-light/50 text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold-light hover:text-charcoal transition-colors duration-300"
+            className="group inline-flex items-center gap-3 h-14 px-8 border border-gold-light/50 text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold-light hover:text-[#151417] transition-colors duration-300"
           >
             <ScanEye size={16} />
             Explore Product

@@ -1,3 +1,4 @@
+// src/components/abix/AbixmartCircle.jsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
@@ -9,7 +10,7 @@ export default function AbixmartCircle() {
   const [done, setDone] = useState(false);
 
   return (
-    <section className="bg-espresso py-24 lg:py-36 border-t border-ivory/10">
+    <section className="bg-[#1E1C1F] py-24 lg:py-36 border-t border-ivory/10">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <div className="lg:col-span-6">
@@ -33,7 +34,7 @@ export default function AbixmartCircle() {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="bg-charcoal text-ivory p-10 lg:p-14 grain border border-ivory/10">
+            <div className="bg-[#151417] text-ivory p-10 lg:p-14 grain border border-ivory/10">
               {done ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.96 }}
@@ -74,7 +75,7 @@ export default function AbixmartCircle() {
                   </div>
                   <button
                     type="submit"
-                    className="group mt-9 w-full h-14 inline-flex items-center justify-center bg-ivory text-charcoal text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-resin hover:text-ivory transition-colors duration-300"
+                    className="group mt-9 w-full h-14 inline-flex items-center justify-center bg-ivory text-[#151417] text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-resin hover:text-ivory transition-colors duration-300"
                   >
                     Join the Circle
                     <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>

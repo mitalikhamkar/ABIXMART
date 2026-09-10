@@ -1,3 +1,4 @@
+// src/components/abix/Hero.jsx
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
@@ -38,7 +39,7 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="top"
-      className="relative min-h-[100svh] w-full overflow-hidden bg-charcoal grain flex flex-col"
+      className="relative min-h-[100svh] w-full overflow-hidden bg-[#151417] grain flex flex-col"
     >
       {/* Environment — real Himalayan photo. Initial hidden state is set
           entirely by GSAP (gsap.set in useHeroIntro), never via a React
@@ -131,7 +132,7 @@ export default function Hero() {
             <Link
               ref={primaryCtaRef}
               to="/shop"
-              className="group inline-flex items-center justify-center h-12 lg:h-14 px-7 lg:px-9 bg-ivory text-greendark text-[11px] lg:text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none hover:bg-gold hover:text-greendark transition-colors duration-300"
+              className="group inline-flex items-center justify-center h-12 lg:h-14 px-7 lg:px-9 bg-ivory text-[#151417] text-[11px] lg:text-[12px] font-semibold tracking-luxe-sm uppercase rounded-none hover:bg-[#D3A467] hover:text-[#151417] transition-colors duration-300"
             >
               Explore Products
               <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>

@@ -1,15 +1,17 @@
+// src/components/abix/RitualOffers.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ritualBundles } from '@/data/products';
 import { useShop } from '@/lib/ShopContext';
 
-// Warm clay surface — the "warm earth" tone continuing from DailyRitual's
-// peak, with the resin accent doing the highlighting instead of green.
+// Warm mineral-stone surface — continues the charcoal/mineral/resin system
+// from DailyRitual's peak tone, with the resin accent doing the
+// highlighting instead of a brown/coffee wash.
 export default function RitualOffers() {
   const { openCheckout } = useShop();
 
   return (
-    <section id="offers" className="bg-clay py-24 lg:py-36">
+    <section id="offers" className="bg-[#322E2C] py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="text-center max-w-2xl mx-auto mb-14 lg:mb-20">
           <span className="font-grotesk text-[11px] font-medium uppercase tracking-luxe-sm text-gold-light">Start your ritual</span>
@@ -27,7 +29,7 @@ export default function RitualOffers() {
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.7, delay: i * 0.1 }}
               className={`relative flex flex-col p-8 lg:p-10 transition-colors duration-500 ${
-                b.highlight ? 'bg-resin text-ivory' : 'bg-charcoal/50 text-ivory'
+                b.highlight ? 'bg-resin text-ivory' : 'bg-[#151417]/50 text-ivory'
               }`}
             >
               {b.highlight && (
@@ -50,8 +52,8 @@ export default function RitualOffers() {
                 onClick={() => openCheckout({ name: `${b.name} — Shilajit Pure Resin`, jars: b.jars, price: b.price })}
                 className={`group mt-8 h-14 inline-flex items-center justify-center text-[12px] font-semibold tracking-luxe-sm uppercase transition-colors duration-300 ${
                   b.highlight
-                    ? 'bg-ivory text-charcoal hover:bg-charcoal hover:text-ivory'
-                    : 'bg-ivory text-charcoal hover:bg-resin hover:text-ivory'
+                    ? 'bg-ivory text-[#151417] hover:bg-[#151417] hover:text-ivory'
+                    : 'bg-ivory text-[#151417] hover:bg-resin hover:text-ivory'
                 }`}
               >
                 Start this ritual
