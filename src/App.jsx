@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Outlet, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ScrollToTop from './components/ScrollToTop';
 import Home from '@/pages/Home';
@@ -17,6 +17,22 @@ import AuthAction from '@/pages/AuthAction';
 import SiteLayout from '@/components/abix/SiteLayout';
 import { ShopProvider } from '@/lib/ShopContext';
 import { AuthProvider } from '@/lib/AuthContext';
+
+import AdminLogin from '@/pages/AdminLogin';
+import { AdminAuthProvider } from '@/admin/lib/AdminAuthContext';
+import AdminGuard from '@/admin/components/AdminGuard';
+import AdminLayout from '@/admin/layouts/AdminLayout';
+import Overview from '@/admin/sections/Overview';
+import Customers from '@/admin/sections/Customers';
+import Orders from '@/admin/sections/Orders';
+import Products from '@/admin/sections/Products';
+import Inquiries from '@/admin/sections/Inquiries';
+import Analytics from '@/admin/sections/Analytics';
+import CustomerActivity from '@/admin/sections/CustomerActivity';
+import Acquisition from '@/admin/sections/Acquisition';
+import ProductPerformance from '@/admin/sections/ProductPerformance';
+import Community from '@/admin/sections/Community';
+import Settings from '@/admin/sections/Settings';
 // Add page imports here
 
 function App() {
@@ -40,6 +56,35 @@ function App() {
                 <Route path="/account" element={<Account />} />
                 <Route path="/auth/action" element={<AuthAction />} />
               </Route>
+
+              {/* Admin application — separate auth context, no customer
+                  chrome (header/footer/cart/assist). AdminAuthProvider
+                  wraps both /admin/login and the guarded /admin app. */}
+              <Route element={<AdminAuthProvider><Outlet /></AdminAuthProvider>}>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminGuard>
+                      <AdminLayout />
+                    </AdminGuard>
+                  }
+                >
+                  <Route index element={<Navigate to="overview" replace />} />
+                  <Route path="overview" element={<Overview />} />
+                  <Route path="customers" element={<Customers />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="products" element={<Products />} />
+                  <Route path="inquiries" element={<Inquiries />} />
+                  <Route path="analytics" element={<Analytics />} />
+                  <Route path="customer-activity" element={<CustomerActivity />} />
+                  <Route path="acquisition" element={<Acquisition />} />
+                  <Route path="product-performance" element={<ProductPerformance />} />
+                  <Route path="community" element={<Community />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+              </Route>
+
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </Router>

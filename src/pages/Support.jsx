@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, BookOpen, Package, Truck, HelpCircle, MessageCircle, Check } from 'lucide-react';
+import { ShoppingBag, BookOpen, Package, Truck, HelpCircle, MessageCircle, Check, Send } from 'lucide-react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
 import FAQAccordion from '@/components/abix/FAQAccordion';
@@ -19,6 +21,49 @@ export default function Support() {
   const handleTrack = (e) => {
     e.preventDefault();
     setTracked(true);
+  };
+
+  // Inquiry form — writes to Firestore `inquiries/{inquiryId}`, the same
+  // collection the admin panel's Inquiries section reads from.
+  const [inquiryForm, setInquiryForm] = useState({ name: '', email: '', phone: '', productInterest: '', message: '' });
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
+  const [inquiryError, setInquiryError] = useState('');
+
+  const updateInquiryField = (key) => (e) =>
+    setInquiryForm((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const handleInquirySubmit = async (e) => {
+    e.preventDefault();
+    if (inquirySubmitting) return;
+
+    if (!inquiryForm.name.trim() || !inquiryForm.email.trim() || !inquiryForm.message.trim()) {
+      setInquiryError('Please fill in your name, email, and message.');
+      return;
+    }
+
+    setInquiryError('');
+    setInquirySubmitting(true);
+    try {
+      await addDoc(collection(db, 'inquiries'), {
+        name: inquiryForm.name.trim(),
+        email: inquiryForm.email.trim(),
+        phone: inquiryForm.phone.trim(),
+        productInterest: inquiryForm.productInterest.trim(),
+        message: inquiryForm.message.trim(),
+        source: 'website',
+        status: 'new',
+        createdAt: serverTimestamp(),
+      });
+      setInquirySubmitted(true);
+      setInquiryForm({ name: '', email: '', phone: '', productInterest: '', message: '' });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[ABIXMART] Inquiry submission failed:', err?.code, err?.message, err);
+      setInquiryError('Something went wrong sending your message. Please try again, or reach us on WhatsApp below.');
+    } finally {
+      setInquirySubmitting(false);
+    }
   };
 
   return (
@@ -147,6 +192,112 @@ export default function Support() {
               pregnant, nursing, or managing a health condition.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Inquiry form — sand. Writes to Firestore inquiries/{inquiryId},
+          the same collection the admin panel's Inquiries section reads. */}
+      <section id="inquiry" className="bg-sand py-16 lg:py-24 border-t border-greendark/5 scroll-mt-20">
+        <div className="mx-auto max-w-3xl px-6 lg:px-10">
+          <Eyebrow tone="moss">Send an inquiry</Eyebrow>
+          <h2 className="mt-5 font-display text-4xl sm:text-5xl text-greendark leading-[1.02] tracking-tight">
+            Ask us anything.
+          </h2>
+          <p className="mt-4 text-foreground/60 leading-relaxed">
+            Have a question about ingredients, sourcing, or an order? Send us a note and we'll get back to you directly.
+          </p>
+
+          {inquirySubmitted ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8 bg-ivory border border-greendark/10 p-7 flex items-start gap-4"
+            >
+              <span className="h-10 w-10 shrink-0 inline-flex items-center justify-center bg-greendark text-ivory">
+                <Check size={18} />
+              </span>
+              <div>
+                <p className="font-display text-xl text-greendark">Thank you — your message is on its way.</p>
+                <p className="mt-1.5 text-sm text-foreground/60 leading-relaxed">
+                  We typically reply within one business day. You can also reach us on WhatsApp below for a faster response.
+                </p>
+                <button
+                  onClick={() => setInquirySubmitted(false)}
+                  className="mt-4 text-sm text-greendark underline underline-offset-4 hover:text-gold transition-colors"
+                >
+                  Send another inquiry
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleInquirySubmit} className="mt-8 space-y-5" noValidate>
+              {inquiryError && (
+                <div className="border border-red-400/40 bg-red-50 text-red-700 text-sm px-4 py-3">{inquiryError}</div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="label-meta text-foreground/50 mb-1.5 block">Name</label>
+                  <input
+                    value={inquiryForm.name}
+                    onChange={updateInquiryField('name')}
+                    placeholder="Your name"
+                    className="w-full h-14 px-5 bg-ivory border border-greendark/20 text-greendark placeholder:text-foreground/40 focus:outline-none focus:border-gold transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="label-meta text-foreground/50 mb-1.5 block">Phone (optional)</label>
+                  <input
+                    value={inquiryForm.phone}
+                    onChange={updateInquiryField('phone')}
+                    placeholder="10-digit mobile"
+                    className="w-full h-14 px-5 bg-ivory border border-greendark/20 text-greendark placeholder:text-foreground/40 focus:outline-none focus:border-gold transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label-meta text-foreground/50 mb-1.5 block">Email</label>
+                <input
+                  type="email"
+                  value={inquiryForm.email}
+                  onChange={updateInquiryField('email')}
+                  placeholder="you@example.com"
+                  className="w-full h-14 px-5 bg-ivory border border-greendark/20 text-greendark placeholder:text-foreground/40 focus:outline-none focus:border-gold transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="label-meta text-foreground/50 mb-1.5 block">What are you interested in? (optional)</label>
+                <input
+                  value={inquiryForm.productInterest}
+                  onChange={updateInquiryField('productInterest')}
+                  placeholder="e.g. Himalayan Shilajit Resin"
+                  className="w-full h-14 px-5 bg-ivory border border-greendark/20 text-greendark placeholder:text-foreground/40 focus:outline-none focus:border-gold transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="label-meta text-foreground/50 mb-1.5 block">Message</label>
+                <textarea
+                  value={inquiryForm.message}
+                  onChange={updateInquiryField('message')}
+                  placeholder="How can we help?"
+                  rows={5}
+                  className="w-full px-5 py-4 bg-ivory border border-greendark/20 text-greendark placeholder:text-foreground/40 focus:outline-none focus:border-gold transition-colors resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={inquirySubmitting}
+                className="h-14 px-8 inline-flex items-center gap-3 bg-greendark text-ivory text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-gold hover:text-greendark transition-colors duration-300 disabled:opacity-50"
+              >
+                <Send size={16} />
+                {inquirySubmitting ? 'Sending…' : 'Send Inquiry'}
+              </button>
+            </form>
+          )}
         </div>
       </section>
 

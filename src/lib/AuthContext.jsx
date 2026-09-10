@@ -45,16 +45,35 @@ function buildGoogleProfilePatch(firebaseUser, existingProfile) {
   return patch;
 }
 
+// NEW: checks the account is still real on Firebase's servers, not just
+// locally cached. reload() forces a fresh round-trip; if the account was
+// deleted from the Console, this throws auth/user-not-found or
+// auth/user-disabled instead of silently succeeding against stale local
+// state. Returns false (and signs out) if the session is stale.
+async function verifyLiveSession(firebaseUser) {
+  try {
+    await firebaseUser.reload();
+    return true;
+  } catch (err) {
+    if (err?.code === 'auth/user-not-found' || err?.code === 'auth/user-disabled') {
+      // eslint-disable-next-line no-console
+      console.warn('[ABIXMART] Stale session detected (account deleted/disabled server-side) — signing out.', err.code);
+      await signOut(auth);
+      return false;
+    }
+    // Any other error (e.g. network) — don't force a sign-out over a
+    // transient failure; let the app continue with the cached session.
+    // eslint-disable-next-line no-console
+    console.error('[ABIXMART] Session verification failed (non-fatal):', err?.code, err?.message);
+    return true;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const redirectHandledRef = useRef(false);
-
-  // NEW: UIDs currently mid-signup (register / finishGoogleSignIn) whose
-  // profile doc write is in flight. loadProfile checks this before
-  // deciding "no doc = deleted account, sign out" — otherwise it races
-  // the write and force-logs-out brand-new users during their own signup.
   const pendingProfileUidsRef = useRef(new Set());
 
   const loadProfile = useCallback(async (firebaseUser) => {
@@ -62,9 +81,6 @@ export function AuthProvider({ children }) {
     let snap = await getDoc(ref);
 
     if (!snap.exists() && pendingProfileUidsRef.current.has(firebaseUser.uid)) {
-      // A signup/sign-in flow for this exact user is actively writing
-      // their profile doc right now — wait for it instead of racing it.
-      // Polls briefly (up to ~2.5s) rather than signing them out.
       for (let i = 0; i < 10 && pendingProfileUidsRef.current.has(firebaseUser.uid); i++) {
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
@@ -75,8 +91,19 @@ export function AuthProvider({ children }) {
       return { ref, data: snap.data() };
     }
 
-    // Still no doc after waiting out any in-flight write — genuinely
-    // missing (e.g. deleted from Firestore). Sign the user out.
+    // Missing profile doc for a live, signed-in Auth user. Before treating
+    // this as "deleted account," check whether this uid is an admin (admin
+    // accounts intentionally have no customer profile — see
+    // src/admin/lib/AdminAuthContext.jsx).
+    try {
+      const adminSnap = await getDoc(doc(db, 'admins', firebaseUser.uid));
+      if (adminSnap.exists()) {
+        return { ref, data: null };
+      }
+    } catch {
+      // Fall through to normal handling below.
+    }
+
     // eslint-disable-next-line no-console
     console.warn('[ABIXMART] No profile doc for signed-in user — signing out.', firebaseUser.uid);
     await signOut(auth);
@@ -112,6 +139,20 @@ export function AuthProvider({ children }) {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
+
+      if (firebaseUser) {
+        // NEW: verify this session is still valid server-side before
+        // trusting it. Closes the "deleted Auth account still appears
+        // logged in until token refresh" gap.
+        const isLive = await verifyLiveSession(firebaseUser);
+        if (!isLive) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+      }
+
       setUser(firebaseUser);
 
       if (firebaseUser) {
@@ -135,6 +176,12 @@ export function AuthProvider({ children }) {
   }, [loadProfile, finishGoogleSignIn]);
 
   const register = useCallback(async ({ fullName, phone, email, password }) => {
+    // createUserWithEmailAndPassword is the ONLY place "email already
+    // exists" can originate. This call talks directly to Firebase Auth's
+    // servers — it never reads Firestore first, and nothing in this
+    // function can be influenced by a stale users/{uid} document. If this
+    // throws auth/email-already-in-use, Firebase Auth's own account list
+    // genuinely contains that email.
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     pendingProfileUidsRef.current.add(credential.user.uid);
 
@@ -147,6 +194,9 @@ export function AuthProvider({ children }) {
       }
 
       try {
+        // Keyed by the fresh Firebase UID just issued above — never by
+        // email — so a new account after a deletion always gets its own
+        // brand-new document, never colliding with an old one.
         await setDoc(doc(db, 'users', credential.user.uid), {
           uid: credential.user.uid,
           fullName,
