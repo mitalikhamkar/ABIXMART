@@ -5,6 +5,15 @@ import heroJarCutout from '@/assets/products/shilajit-jar-cutout.png';
 import shilajitJarBox from '@/assets/products/shilajit.jpeg';
 import heroBg from '@/assets/hero/himalayan-hero-bg.png';
 
+// NEW — Shop page assets. Kept separate from the constants below (which
+// Home-page components also consume) so this Shop-page rebuild never
+// changes what renders on Home.
+import shilajitShop from '@/assets/products/shilajit-shop.png';
+import orthavedaImg from '@/assets/products/orthaveda.png';
+import dayavedaImg from '@/assets/products/dayaveda.png';
+import triphalaImg from '@/assets/products/triphala.png';
+import ashwagandhaImg from '@/assets/products/ashwagandha.png';
+
 // NOTE: HERO_IMAGE and the string below (Base44-generated) are not used
 // anywhere — kept only so nothing else that might reference the constant
 // name breaks. The REAL, approved product photo is PRODUCT_HERO_IMAGE.
@@ -65,6 +74,11 @@ export const categories = [
   { key: "herbs", label: "Herbal Wellness" },
 ];
 
+// UPDATED — matches the official 5-product lineup: Shilajit (available),
+// Orthoveda, Dayaveda, Triphala, Ashwagandha (coming soon). Previously
+// included Amla/Moringa in this array's coming_soon slots — replaced with
+// Orthoveda/Dayaveda per the current catalog. `upcomingProducts` below
+// (used by Home's "What's Growing Next") is intentionally left untouched.
 export const products = [
   {
     id: "shilajit-resin",
@@ -76,6 +90,7 @@ export const products = [
     currency: "₹",
     status: "available",
     image: PRODUCT_IMAGE,
+    shopImage: shilajitShop,
     shortDesc: "Sourced from the high Himalayas and traditionally purified.",
     description:
       "Sourced from the high Himalayas and traditionally purified, ABIXMART Pure Shilajit Resin is crafted to be part of your daily wellness ritual — slow, deliberate, and considered.",
@@ -92,16 +107,30 @@ export const products = [
     ],
   },
   {
-    id: "ashwagandha",
-    slug: "ashwagandha",
-    name: "Ashwagandha",
+    id: "orthoveda",
+    slug: "orthoveda",
+    name: "Orthoveda",
     subtitle: "Coming Soon",
     category: "herbs",
     price: null,
     currency: "₹",
     status: "coming_soon",
-    shortDesc: "For calm and resilience.",
-    note: "A traditional adaptogen, prepared with the same care as our Shilajit.",
+    shopImage: orthavedaImg,
+    shortDesc: "For joint comfort and everyday mobility.",
+    note: "A forthcoming Ayurvedic formulation, currently in development.",
+  },
+  {
+    id: "dayaveda",
+    slug: "dayaveda",
+    name: "Dayaveda",
+    subtitle: "Coming Soon",
+    category: "herbs",
+    price: null,
+    currency: "₹",
+    status: "coming_soon",
+    shopImage: dayavedaImg,
+    shortDesc: "For steady, daily balance.",
+    note: "A forthcoming Ayurvedic formulation, currently in development.",
   },
   {
     id: "triphala",
@@ -112,32 +141,22 @@ export const products = [
     price: null,
     currency: "₹",
     status: "coming_soon",
+    shopImage: triphalaImg,
     shortDesc: "A traditional three-fruit blend.",
     note: "Three fruits, one considered blend — rooted in Ayurvedic tradition.",
   },
   {
-    id: "amla",
-    slug: "amla",
-    name: "Amla",
+    id: "ashwagandha",
+    slug: "ashwagandha",
+    name: "Ashwagandha",
     subtitle: "Coming Soon",
     category: "herbs",
     price: null,
     currency: "₹",
     status: "coming_soon",
-    shortDesc: "Vitamin-rich botanical.",
-    note: "The Indian gooseberry — valued for generations in wellness practice.",
-  },
-  {
-    id: "moringa",
-    slug: "moringa",
-    name: "Moringa",
-    subtitle: "Coming Soon",
-    category: "herbs",
-    price: null,
-    currency: "₹",
-    status: "coming_soon",
-    shortDesc: "Leaf of the miracle tree.",
-    note: "Nutrient-dense leaves, gently handled to preserve their character.",
+    shopImage: ashwagandhaImg,
+    shortDesc: "For calm and resilience.",
+    note: "A traditional adaptogen, prepared with the same care as our Shilajit.",
   },
 ];
 

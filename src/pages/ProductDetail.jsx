@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Minus, Plus, ArrowLeft, Heart } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
-import ProductCard from '@/components/abix/ProductCard';
+import ShopCollectionCard from '@/components/abix/ShopCollectionCard';
 import { getProductBySlug, products, openProductTabs, ritualBundles, SOURCING_IMAGE, PURIFICATION_IMAGE, RITUAL_IMAGE } from '@/data/products';
 import { useShop } from '@/lib/ShopContext';
 
@@ -218,7 +218,7 @@ export default function ProductDetail() {
             <h2 className="font-display text-3xl sm:text-4xl text-greendark mb-10">You may also like</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
               {related.map((p, i) => (
-                <ProductCard key={p.id} product={p} index={i} />
+                <ShopCollectionCard key={p.id} product={p} index={i} />
               ))}
             </div>
           </div>

@@ -1,139 +1,79 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+// src/pages/Shop.jsx
+import React, { useEffect, useState } from 'react';
 import PageTransition from '@/components/abix/PageTransition';
-import ProductCard from '@/components/abix/ProductCard';
-import ComingSoonCard from '@/components/abix/ComingSoonCard';
+import CollectionHero from '@/components/abix/CollectionHero';
+import FeaturedShilajit from '@/components/abix/FeaturedShilajit';
+import ShopCollectionCard from '@/components/abix/ShopCollectionCard';
+import BrandStrip from '@/components/abix/BrandStrip';
 import Eyebrow from '@/components/abix/Eyebrow';
-import { availableProducts, upcomingProductsList, categories, ritualBundles } from '@/data/products';
-import { useShop } from '@/lib/ShopContext';
+import { products, availableProducts } from '@/data/products';
+import { useAuth } from '@/lib/AuthContext';
+import { checkNotifySubscribed, subscribeToNotify } from '@/lib/notifyUtils';
+import { Check, X } from 'lucide-react';
+
+const PENDING_NOTIFY_KEY = 'abixmart_pending_notify';
 
 export default function Shop() {
-  const [activeCat, setActiveCat] = useState('all');
-  const { openCheckout } = useShop();
+  const { user } = useAuth();
+  const featured = availableProducts()[0];
+  const otherProducts = products.filter((p) => !featured || p.id !== featured.id);
+  const [returnBanner, setReturnBanner] = useState(null);
 
-  const available = availableProducts();
-  const upcoming = upcomingProductsList();
-  const filtered = activeCat === 'all' ? available : available.filter((p) => p.category === activeCat);
+  // Resumes a "Notify Me" click that was interrupted by a login redirect.
+  // See ShopCollectionCard.jsx for where the pending product ID is stored.
+  useEffect(() => {
+    const pendingId = sessionStorage.getItem(PENDING_NOTIFY_KEY);
+    if (!pendingId || !user) return;
+
+    (async () => {
+      const product = products.find((p) => p.id === pendingId);
+      sessionStorage.removeItem(PENDING_NOTIFY_KEY);
+      if (!product) return;
+      try {
+        const already = await checkNotifySubscribed(user.uid, product.id);
+        if (!already) {
+          await subscribeToNotify(user.uid, user.email, product.id, product.name);
+        }
+        setReturnBanner(product.name);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[ABIXMART] Pending notify resume failed:', err?.code, err?.message);
+      }
+    })();
+  }, [user]);
 
   return (
     <PageTransition>
-      {/* Shop hero — espresso, matching the Home/About dark rhythm */}
-      <section className="bg-espresso pt-28 lg:pt-36 pb-16 lg:pb-24">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <Eyebrow light>The Shop</Eyebrow>
-          <h1 className="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl text-ivory leading-[1] tracking-tight">
-            Explore ABIXMART
-          </h1>
-          <p className="mt-6 max-w-xl text-ivory/70 text-lg leading-relaxed">
-            Himalayan Shilajit, crafted with patience — and more Ayurvedic wellness on the way.
-            Take your time. Understand the source before you choose.
-          </p>
+      {returnBanner && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#211E1F] text-ivory border border-[#BE8A4B]/30 px-5 py-3.5 flex items-center gap-3 shadow-lg">
+          <Check size={16} className="text-[#D3A467] shrink-0" />
+          <span className="text-sm">
+            You're on the list for <strong>{returnBanner}</strong>.
+          </span>
+          <button onClick={() => setReturnBanner(null)} className="text-ivory/40 hover:text-ivory ml-2">
+            <X size={14} />
+          </button>
         </div>
-      </section>
+      )}
 
-      {/* Categories + available products — ivory */}
-      <section className="bg-ivory py-16 lg:py-24 border-t border-greendark/5">
+      <CollectionHero products={products} />
+      <FeaturedShilajit product={featured} />
+
+      <section className="bg-[#1E1C1F] py-16 lg:py-24 border-t border-[#F2ECE2]/5">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <div className="flex flex-wrap items-center gap-3 mb-12">
-            {categories.map((c) => (
-              <button
-                key={c.key}
-                onClick={() => setActiveCat(c.key)}
-                className={`h-11 px-5 font-grotesk text-[12px] font-medium tracking-luxe-sm uppercase border transition-colors duration-300 ${
-                  activeCat === c.key
-                    ? 'bg-greendark text-ivory border-greendark'
-                    : 'border-greendark/20 text-greendark hover:border-greendark'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
+          <div className="max-w-2xl mb-10 lg:mb-14">
+            <Eyebrow light>More From The Ritual</Eyebrow>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl text-ivory leading-tight">Coming Soon</h2>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            {filtered.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
-            ))}
-          </div>
-
-          {filtered.length === 0 && (
-            <p className="text-foreground/50 text-sm">No products in this category yet — check back soon.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Coming soon — sand */}
-      <section id="coming-soon" className="bg-sand py-16 lg:py-24 border-t border-greendark/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <div className="mb-12 max-w-2xl">
-            <Eyebrow tone="moss">The Garden Ahead</Eyebrow>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl text-greendark leading-[1.02] tracking-tight">
-              Coming soon
-            </h2>
-            <p className="mt-4 text-foreground/60 leading-relaxed">
-              More Ayurvedic wellness, crafted with the same patience. Be the first to know when they land.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-            {upcoming.map((p, i) => (
-              <ComingSoonCard key={p.id} product={p} index={i} />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {otherProducts.map((p, i) => (
+              <ShopCollectionCard key={p.id} product={p} index={i} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Bundles / offers — ivory */}
-      <section id="bundles" className="bg-ivory py-16 lg:py-24 border-t border-greendark/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <Eyebrow className="justify-center">Start your ritual</Eyebrow>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl text-greendark leading-[1.02] tracking-tight">
-              Choose your rhythm.
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-5 lg:gap-8 items-stretch">
-            {ritualBundles.map((b, i) => (
-              <motion.div
-                key={b.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.7, delay: i * 0.1 }}
-                className={`relative flex flex-col p-8 lg:p-10 transition-colors duration-500 ${
-                  b.highlight ? 'bg-resin text-ivory' : 'bg-sand text-greendark'
-                }`}
-              >
-                {b.highlight && (
-                  <span className="absolute top-6 right-6 label-meta text-gold-light">Most chosen</span>
-                )}
-                <span className={`font-display text-6xl leading-none ${b.highlight ? 'text-ivory/25' : 'text-greendark/15'}`}>
-                  0{i + 1}
-                </span>
-                <h3 className="mt-6 font-display text-3xl">{b.name}</h3>
-                <p className={`mt-2 text-sm ${b.highlight ? 'text-ivory/70' : 'text-foreground/60'}`}>{b.detail}</p>
-                <div className="mt-8 flex items-baseline gap-3">
-                  <span className="font-price text-4xl">₹{b.price}</span>
-                  <span className={`text-xs ${b.highlight ? 'text-ivory/60' : 'text-foreground/50'}`}>{b.note}</span>
-                </div>
-                <button
-                  onClick={() => openCheckout({ name: `${b.name} — Shilajit Pure Resin`, jars: b.jars, price: b.price })}
-                  className={`group mt-8 h-14 inline-flex items-center justify-center text-[12px] font-semibold tracking-luxe-sm uppercase transition-colors duration-300 ${
-                    b.highlight ? 'bg-ivory text-charcoal hover:bg-charcoal hover:text-ivory' : 'bg-greendark text-ivory hover:bg-gold hover:text-greendark'
-                  }`}
-                >
-                  Start this ritual
-                  <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>
-                </button>
-              </motion.div>
-            ))}
-          </div>
-          <p className="mt-10 text-center text-xs text-foreground/40 max-w-lg mx-auto">
-            Promotional pricing shown is representative. No fabricated urgency — choose what fits your practice.
-          </p>
-        </div>
-      </section>
+      <BrandStrip />
     </PageTransition>
   );
 }
