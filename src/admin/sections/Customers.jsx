@@ -118,9 +118,12 @@ export default function Customers() {
                 <p className="text-xs text-charcoal/50 truncate">{selected.email}</p>
               </div>
             </div>
-            <dl className="mt-5 space-y-3 text-sm">
+
+            <span className="label-meta text-charcoal/35 mt-5 block">Account</span>
+            <dl className="mt-2 space-y-3 text-sm">
               {[
                 ['Phone', selected.phone || '—'],
+                ['Alternate Phone', selected.alternatePhone || '—'],
                 ['Joined', formatDate(selected.createdAt)],
                 ['Last login', formatDate(selected.lastLoginAt)],
                 ['Email verified', selected.emailVerified ? 'Yes' : 'No'],
@@ -132,6 +135,25 @@ export default function Customers() {
                 </div>
               ))}
             </dl>
+
+            {/* NEW — reflects the same users/{uid} doc customers edit via
+                Account > Edit Profile. No second data source. */}
+            <span className="label-meta text-charcoal/35 mt-6 block">Address</span>
+            <dl className="mt-2 space-y-3 text-sm">
+              {[
+                ['Address', selected.address || '—'],
+                ['City', selected.city || '—'],
+                ['State', selected.state || '—'],
+                ['Pincode', selected.pincode || '—'],
+                ['Country', selected.country || '—'],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between border-b border-charcoal/8 pb-2.5">
+                  <dt className="text-charcoal/45 label-meta">{label}</dt>
+                  <dd className="text-charcoal text-right">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
             <button onClick={() => setSelected(null)} className="btn-outline w-full mt-6">
               Close
             </button>

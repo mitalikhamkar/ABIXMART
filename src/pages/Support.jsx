@@ -49,6 +49,21 @@ const MUTED = '#A79C8D';
 const AMBER = '#D3A467';
 const AMBER_FILL = '#BE8A4B';
 
+// The "Choose Your Path" section has 6 cards but only 5 support images
+// exist in the project — there is no dedicated 6th photo. This maps each
+// card to one of the 5 real assets so no two *adjacent* cards repeat the
+// same image. supportHero is reused once (cards 0 and 5, which are not
+// next to each other) since 6 slots > 5 assets. If a unique 6th image is
+// ever added, replace supportHero at the end with the new import.
+const CARD_IMAGES = [
+  supportHero,       // "I want to buy something"
+  supportHelpCards,  // "I want to understand a product"
+  supportTracking,   // "I already placed an order"
+  supportContact,    // "I want to track my order"
+  supportFaq,        // "I have a question"
+  supportHero,       // "Talk to ABIXMART" — reused, non-adjacent to card 0
+];
+
 export default function Support() {
   const [searchParams] = useSearchParams();
   const { user, profile } = useAuth();
@@ -318,28 +333,27 @@ export default function Support() {
                       background: STONE,
                     }}
                   >
-                    <div className="relative h-28 overflow-hidden">
-                      <div
-                        className="absolute inset-0 transition-transform duration-700"
-                        style={{
-                          backgroundImage: `url(${supportHelpCards})`,
-                          backgroundSize: '400% 400%',
-                          backgroundPosition: `${(i % 3) * 50}% ${
-                            Math.floor(i / 3) * 50
-                          }%`,
-                          transform: isHovered ? 'scale(1.08)' : 'scale(1)',
-                          transitionTimingFunction:
-                            'cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                      />
+<div className="relative h-28 overflow-hidden">
+  <div
+    className="absolute inset-0 transition-transform duration-700"
+    style={{
+      backgroundImage: `url(${CARD_IMAGES[i % CARD_IMAGES.length]})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+      transitionTimingFunction:
+        'cubic-bezier(0.16,1,0.3,1)',
+    }}
+  />
 
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          background: `${INK}66`,
-                        }}
-                      />
-                    </div>
+  <div
+    className="absolute inset-0"
+    style={{
+      background: `${INK}66`,
+    }}
+  />
+</div>
 
                     <div className="relative flex items-start gap-4 p-6 flex-1">
                       <span className="relative mt-1 shrink-0">

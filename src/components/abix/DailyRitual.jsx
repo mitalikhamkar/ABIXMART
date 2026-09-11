@@ -14,20 +14,40 @@ import morningToNightImg from '@/assets/HowToUse/Morning to night.png';
  * Not a boxed video-like carousel, not a card grid.
  *
  * ONLY FOUR IMAGES ARE IMPORTED ABOVE. There is no fifth "spoon" asset
- * anywhere in this file, in this component's imports, or in any inline
- * style/background-image in this file — grep this file for "Spoon" and
- * you will get zero matches. If a spoon image is still appearing on the
- * live site, its source is not here; see the note at the bottom of this
- * message for exactly where to look in the real project.
+ * anywhere in this file — grep for "Spoon" and you get zero matches.
  *
- * Images are never force-cropped: no fixed-aspect + object-cover box.
- * Each image renders at its natural aspect ratio (w-full, h-auto), so
- * nothing important is cut off by a container. `OBJECT_POSITION` below is
- * a single, obvious place to nudge framing per-image if a specific photo
- * needs it (e.g. a tall shot where the important detail sits low) — every
- * entry defaults to 'center' since the actual photos aren't inspectable
- * from here; adjust the specific key if one image needs it once you see
- * this live against the real files.
+ * PERFORMANCE / FLICKER NOTE (read before changing this file again):
+ * Each chapter's image is a *permanent* image, not a slide that gets
+ * swapped — so "the transition" is really "the reveal of a specific
+ * image, at a specific scroll position." Two bugs used to combine to
+ * cause visible flicker/late pop-in:
+ *   1. The image itself hadn't finished downloading by the time its
+ *      reveal point was reached.
+ *   2. The "hidden" starting state (clipped, scaled up, dimmed) was
+ *      being applied by gsap.set() *inside* useGSAP, which only runs
+ *      after the browser's first paint. That means the browser would
+ *      briefly paint the image at full size/opacity, THEN GSAP would
+ *      snap it back to hidden, THEN reveal it — a visible double-flip.
+ * This version fixes both:
+ *   - The hidden starting state is baked directly into the JSX `style`
+ *     prop, so it's correct from the very first rendered frame. GSAP
+ *     only ever animates forward from a state that was already right.
+ *   - Scroll-ahead preloading: each chapter's image starts fetching
+ *     while the *previous* chapter is still on screen, well before its
+ *     own reveal point.
+ *   - The reveal animation is gated on `img.complete` — if the image is
+ *     already cached (the normal case, thanks to preloading) it plays
+ *     instantly; if a user scrolls unusually fast it waits for the
+ *     `load` event and then plays, instead of animating over a blank box.
+ * If you change these images, keep this contract: no image gets
+ * revealed with GSAP before it exists in the browser's cache, and the
+ * pre-reveal visual state always lives in the JSX style, not in a
+ * gsap.set() that runs after paint.
+ *
+ * A fixed `aspect-ratio` box (ASPECT_RATIO below) reserves layout space
+ * before the image loads, so there is never a blank gap or layout jump.
+ * OBJECT_POSITION lets you nudge framing per-image if the cover-crop
+ * trims something important once checked against the real files.
  *
  * The section's background is one continuous mineral gradient — deep
  * charcoal at the edges, warm stone/graphite at the peak — matching the
@@ -46,6 +66,16 @@ const OBJECT_POSITION = {
   consistency: 'center',
 };
 
+// Stable box ratios so the layout never jumps while images load.
+// Adjust per-key if a real image's actual ratio causes visible
+// cover-cropping of an important detail once checked against the files.
+const ASPECT_RATIO = {
+  take: '4 / 5',
+  dissolve: '4 / 5',
+  stir: '4 / 5',
+  consistency: '4 / 5',
+};
+
 const CHAPTERS = [
   { key: 'take', num: '01', label: 'TAKE', heading: 'Take', line1: 'Start with a pea-sized amount.', line2: '300–500 mg', image: heroFrame, reveal: 'left' },
   { key: 'dissolve', num: '02', label: 'DISSOLVE', heading: 'Dissolve', line1: 'Dissolve in warm water or milk.', line2: '100–150 ml', image: resinIntoWaterImg, reveal: 'bottom' },
@@ -59,6 +89,14 @@ const CLIP_FROM = {
   bottom: 'inset(100% 0 0 0)',
 };
 
+// Initial inline styles for the animated text elements — baked in here
+// (not via gsap.set on mount) so there is zero gap between first paint
+// and the "hidden" state.
+const textStartStyle = (axis, offsetPx) => ({
+  opacity: 0,
+  transform: axis === 'y' ? `translateY(${offsetPx}px)` : `translateX(${offsetPx}px)`,
+});
+
 export default function DailyRitual() {
   const [audioOn, setAudioOn] = useState(false);
   const audioRef = useRef(null);
@@ -70,15 +108,31 @@ export default function DailyRitual() {
   const railLabelRefs = useRef(CHAPTERS.map(() => React.createRef()));
 
   const chapterRefs = useRef(CHAPTERS.map(() => React.createRef()));
-  const imageRefs = useRef(CHAPTERS.map(() => React.createRef()));
+  const imageRefs = useRef(CHAPTERS.map(() => React.createRef())); // wrapper div (animated)
+  const imgElRefs = useRef(CHAPTERS.map(() => React.createRef())); // actual <img> (load-checked)
   const numRefs = useRef(CHAPTERS.map(() => React.createRef()));
   const headingRefs = useRef(CHAPTERS.map(() => React.createRef()));
   const line1Refs = useRef(CHAPTERS.map(() => React.createRef()));
   const line2Refs = useRef(CHAPTERS.map(() => React.createRef()));
 
+  const preloadedRef = useRef(new Set());
+
+  const preloadImage = (index) => {
+    if (index < 0 || index >= CHAPTERS.length) return;
+    if (preloadedRef.current.has(index)) return;
+    preloadedRef.current.add(index);
+    const img = new Image();
+    img.src = CHAPTERS[index].image;
+  };
+
   useGSAP(
     () => {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Chapter 2's image is likely to be seen soon after the hero loads,
+      // regardless of scroll speed — warm it immediately, don't wait for
+      // scroll position.
+      preloadImage(1);
 
       if (reduceMotion) {
         gsap.set(
@@ -89,12 +143,13 @@ export default function DailyRitual() {
             ...line1Refs.current.map((r) => r.current),
             ...line2Refs.current.map((r) => r.current),
           ].filter(Boolean),
-          { opacity: 1, x: 0, y: 0, scale: 1, clipPath: 'inset(0 0 0 0)' }
+          { opacity: 1, x: 0, y: 0, scale: 1, clearProps: 'transform', clipPath: 'inset(0 0 0 0)' }
         );
         railDotRefs.current.forEach((r) => r.current && gsap.set(r.current, { opacity: 1 }));
         railLabelRefs.current.forEach((r) => r.current && gsap.set(r.current, { opacity: 0.85 }));
         if (railFillRef.current) gsap.set(railFillRef.current, { height: '100%' });
         if (railGlowRef.current) gsap.set(railGlowRef.current, { opacity: 0 });
+        CHAPTERS.forEach((_, i) => preloadImage(i));
         return;
       }
 
@@ -118,6 +173,7 @@ export default function DailyRitual() {
       CHAPTERS.forEach((chapter, i) => {
         const chapterEl = chapterRefs.current[i].current;
         const img = imageRefs.current[i].current;
+        const imgEl = imgElRefs.current[i].current;
         const num = numRefs.current[i].current;
         const heading = headingRefs.current[i].current;
         const line1 = line1Refs.current[i].current;
@@ -125,20 +181,59 @@ export default function DailyRitual() {
         const dot = railDotRefs.current[i].current;
         const label = railLabelRefs.current[i].current;
 
-        gsap.set(img, { clipPath: CLIP_FROM[chapter.reveal], scale: 1.1 });
-        gsap.set(num, { opacity: 0, y: 14 });
-        gsap.set(heading, { opacity: 0, x: chapter.reveal === 'right' ? 24 : -24 });
-        gsap.set([line1, line2], { opacity: 0, y: 16 });
+        // NOTE: no gsap.set() for img/num/heading/line1/line2 here — their
+        // hidden starting state is already correct from the JSX `style`
+        // prop on first paint (see textStartStyle / the image wrapper's
+        // inline style below). GSAP only ever animates FORWARD from that
+        // state; it never resets anything after paint, so there is no
+        // flicker window.
         if (dot) gsap.set(dot, { opacity: 0.3, scale: 1 });
         if (label) gsap.set(label, { opacity: 0.4 });
 
-        // Image reveal — a real, clearly visible animated reveal (fixed
-        // duration, plays once) rather than tied 1:1 to scroll position.
-        gsap.timeline({ scrollTrigger: { trigger: chapterEl, start: 'top 85%', once: true } }).to(img, {
-          clipPath: 'inset(0 0 0 0)',
-          scale: 1,
-          duration: 1.2,
-          ease: 'power3.out',
+        // Preload this chapter's image well before it's needed: fire
+        // while the *previous* chapter is still comfortably below the
+        // fold, giving a full chapter's worth of scroll as lead time
+        // before this image's own reveal point.
+        if (i > 0) {
+          const prevEl = chapterRefs.current[i - 1].current;
+          ScrollTrigger.create({
+            trigger: prevEl,
+            start: 'top 120%',
+            once: true,
+            onEnter: () => preloadImage(i),
+          });
+        }
+
+        const playReveal = () => {
+          gsap.timeline().to(img, {
+            clipPath: 'inset(0 0 0 0)',
+            scale: 1,
+            opacity: 1,
+            duration: 1.2,
+            ease: 'power3.out',
+          });
+        };
+
+        // Image reveal — plays once, but only once the image is actually
+        // ready. If it's already cached (the normal case, thanks to the
+        // preloading above), it plays immediately with no gap. If a user
+        // scrolls unusually fast and it's not ready yet, we wait for the
+        // `load` event instead of animating over a blank/placeholder box.
+        ScrollTrigger.create({
+          trigger: chapterEl,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            if (!imgEl || imgEl.complete) {
+              playReveal();
+            } else {
+              const onLoad = () => {
+                playReveal();
+                imgEl.removeEventListener('load', onLoad);
+              };
+              imgEl.addEventListener('load', onLoad);
+            }
+          },
         });
 
         // Very subtle continuous parallax drift while the chapter is in view.
@@ -210,8 +305,6 @@ export default function DailyRitual() {
     <section
       className="pt-24 pb-24 lg:pt-32 lg:pb-40"
       style={{
-        // Deep charcoal at the edges -> graphite/mineral-stone at the
-        // peak -> back to charcoal — mineral system, not coffee-brown.
         background:
           'linear-gradient(180deg, #151417 0%, #1E1C1F 28%, #322E2C 55%, #1E1C1F 100%)',
       }}
@@ -262,6 +355,7 @@ export default function DailyRitual() {
           <div className="lg:pl-40 space-y-24 lg:space-y-36">
             {CHAPTERS.map((chapter, i) => {
               const imageFirstDesktop = i % 2 === 1; // alternating editorial rhythm on desktop
+              const headingOffset = chapter.reveal === 'right' ? 24 : -24;
 
               return (
                 <div key={chapter.num} ref={chapterRefs.current[i]} className="relative">
@@ -272,34 +366,63 @@ export default function DailyRitual() {
                     <div
                       className={`order-2 ${imageFirstDesktop ? 'lg:order-2' : 'lg:order-1'} lg:col-span-5`}
                     >
-                      <span ref={numRefs.current[i]} className="hidden lg:block font-display text-3xl leading-none text-gold-light">
+                      <span
+                        ref={numRefs.current[i]}
+                        className="hidden lg:block font-display text-3xl leading-none text-gold-light"
+                        style={textStartStyle('y', 14)}
+                      >
                         {chapter.num}
                       </span>
                       <h3
                         ref={headingRefs.current[i]}
                         className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight text-ivory"
+                        style={textStartStyle('x', headingOffset)}
                       >
                         {chapter.heading}
                       </h3>
-                      <p ref={line1Refs.current[i]} className="mt-4 text-lg leading-relaxed font-body text-ivory/80">
+                      <p
+                        ref={line1Refs.current[i]}
+                        className="mt-4 text-lg leading-relaxed font-body text-ivory/80"
+                        style={textStartStyle('y', 16)}
+                      >
                         {chapter.line1}
                       </p>
-                      <p ref={line2Refs.current[i]} className="mt-1 text-base font-body text-ivory/55">
+                      <p
+                        ref={line2Refs.current[i]}
+                        className="mt-1 text-base font-body text-ivory/55"
+                        style={textStartStyle('y', 16)}
+                      >
                         {chapter.line2}
                       </p>
                     </div>
 
-                    {/* No negative-margin bleed here — a previous version
-                        pulled this column outside its grid track with
-                        -mr-8/-ml-8, which combined with any ancestor
-                        overflow-hidden could clip the image's edge. This
-                        column now stays fully inside its own grid track. */}
+                    {/* Fixed aspect-ratio box: reserves space before the
+                        image loads, so there is never a blank gap or a
+                        layout jump. The clipPath/scale/opacity starting
+                        state lives right here in inline style — correct
+                        from the very first paint, so GSAP never has to
+                        "snap back" a state the browser already rendered
+                        differently. Stays fully inside its grid track
+                        (no negative-margin bleed). */}
                     <div className={`order-1 ${imageFirstDesktop ? 'lg:order-1' : 'lg:order-2'} lg:col-span-7`}>
-                      <div ref={imageRefs.current[i]} className="overflow-hidden">
+                      <div
+                        ref={imageRefs.current[i]}
+                        className="overflow-hidden bg-black/20"
+                        style={{
+                          aspectRatio: ASPECT_RATIO[chapter.key],
+                          clipPath: CLIP_FROM[chapter.reveal],
+                          transform: 'scale(1.1)',
+                          opacity: 0.4,
+                        }}
+                      >
                         <img
+                          ref={imgElRefs.current[i]}
                           src={chapter.image}
                           alt={chapter.heading}
-                          className="w-full h-auto"
+                          className="w-full h-full block"
+                          loading={i === 0 ? 'eager' : 'lazy'}
+                          decoding="async"
+                          fetchPriority={i === 0 ? 'high' : 'auto'}
                           style={{
                             objectFit: 'cover',
                             objectPosition: OBJECT_POSITION[chapter.key],

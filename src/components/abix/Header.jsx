@@ -62,17 +62,6 @@ export default function Header() {
       >
         <nav className="mx-auto max-w-7xl px-6 lg:px-10 h-16 lg:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center" aria-label="ABIXMART home">
-            {/*
-              NOTE on contrast: the source artwork's wordmark is dark
-              green with no light/ivory variant baked in, so against
-              this dark header it reads as visible-but-dim rather than
-              crisp white-on-dark like the old text logo did. The gold
-              ribbon and leaf highlights still pop. If you want a
-              brighter version for this dark placement, ask for an
-              ivory-recolored variant of the same artwork — it's a
-              straightforward follow-up, not done here since it wasn't
-              requested.
-            */}
             <img
               src={logo}
               alt="ABIXMART"
@@ -191,14 +180,24 @@ export default function Header() {
         </nav>
       </header>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — background is the same deep charcoal → mineral-brown
+          gradient used elsewhere in the ABIXMART system (not flat
+          bg-espresso, which read as plain coffee-brown). Inactive links
+          use text-ivory/55 (matching this file's existing opacity-step
+          convention) instead of an undefined `stone` color that had no
+          contrast against this background. Everything else — structure,
+          buttons, routing, auth — is unchanged. */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 bg-espresso md:hidden pt-16"
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-30 md:hidden pt-16"
+            style={{
+              background: 'linear-gradient(180deg, #17151A 0%, #1E1B1D 55%, #2A2320 100%)',
+            }}
           >
             <div className="px-6 py-6 flex flex-col">
               {navLinks.map((l, i) => (
@@ -210,8 +209,8 @@ export default function Header() {
                 >
                   <Link
                     to={l.to}
-                    className={`block py-4 font-display text-3xl border-b border-ivory/10 ${
-                      location.pathname === l.to ? 'text-gold-light' : 'text-ivory/70'
+                    className={`block py-4 font-display text-3xl border-b border-ivory/10 transition-colors duration-300 ${
+                      location.pathname === l.to ? 'text-gold-light' : 'text-ivory/55 hover:text-ivory'
                     }`}
                   >
                     {l.label}

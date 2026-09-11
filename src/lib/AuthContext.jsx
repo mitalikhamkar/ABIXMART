@@ -40,7 +40,20 @@ function buildGoogleProfilePatch(firebaseUser, existingProfile) {
   if (!existingProfile?.fullName) patch.fullName = firebaseUser.displayName || '';
   if (!existingProfile?.photoURL) patch.photoURL = firebaseUser.photoURL || '';
   if (existingProfile?.phone === undefined) patch.phone = '';
-  if (!existingProfile) patch.createdAt = serverTimestamp();
+
+  // NEW: editable profile fields (Account page Edit Profile). Only set on
+  // first-ever creation of this doc — an existing Google user's doc is
+  // never overwritten with blanks, so any address info they've already
+  // added via Edit Profile is preserved across every future Google login.
+  if (!existingProfile) {
+    patch.createdAt = serverTimestamp();
+    patch.alternatePhone = '';
+    patch.address = '';
+    patch.city = '';
+    patch.state = '';
+    patch.pincode = '';
+    patch.country = 'India';
+  }
 
   return patch;
 }
@@ -141,9 +154,6 @@ export function AuthProvider({ children }) {
       setLoading(true);
 
       if (firebaseUser) {
-        // NEW: verify this session is still valid server-side before
-        // trusting it. Closes the "deleted Auth account still appears
-        // logged in until token refresh" gap.
         const isLive = await verifyLiveSession(firebaseUser);
         if (!isLive) {
           setUser(null);
@@ -176,12 +186,6 @@ export function AuthProvider({ children }) {
   }, [loadProfile, finishGoogleSignIn]);
 
   const register = useCallback(async ({ fullName, phone, email, password }) => {
-    // createUserWithEmailAndPassword is the ONLY place "email already
-    // exists" can originate. This call talks directly to Firebase Auth's
-    // servers — it never reads Firestore first, and nothing in this
-    // function can be influenced by a stale users/{uid} document. If this
-    // throws auth/email-already-in-use, Firebase Auth's own account list
-    // genuinely contains that email.
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     pendingProfileUidsRef.current.add(credential.user.uid);
 
@@ -194,9 +198,6 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        // Keyed by the fresh Firebase UID just issued above — never by
-        // email — so a new account after a deletion always gets its own
-        // brand-new document, never colliding with an old one.
         await setDoc(doc(db, 'users', credential.user.uid), {
           uid: credential.user.uid,
           fullName,
@@ -208,6 +209,17 @@ export function AuthProvider({ children }) {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           lastLoginAt: serverTimestamp(),
+          // NEW: editable profile fields, initialized empty. Registration
+          // itself still only requires Full Name / Phone / Email /
+          // Password — these are just schema placeholders so every
+          // customer doc has a consistent shape from day one, filled in
+          // later via Edit Profile.
+          alternatePhone: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          country: 'India',
         });
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -326,6 +338,26 @@ export function AuthProvider({ children }) {
     []
   );
 
+  // NEW: updates the caller's own users/{uid} doc — never creates a new
+  // document, never touches Firebase Auth's email (per requirement #5,
+  // email stays Auth-owned and read-only in the UI). After the write,
+  // re-reads the doc from Firestore rather than trusting the local
+  // `updates` object, so `profile` always reflects the real persisted
+  // server state, not an optimistic guess.
+  const updateUserProfile = useCallback(async (updates) => {
+    if (!auth.currentUser) {
+      throw new Error('No signed-in user.');
+    }
+    const ref = doc(db, 'users', auth.currentUser.uid);
+    await updateDoc(ref, { ...updates, updatedAt: serverTimestamp() });
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      setProfile(snap.data());
+      return snap.data();
+    }
+    return null;
+  }, []);
+
   const value = {
     user,
     profile,
@@ -341,6 +373,7 @@ export function AuthProvider({ children }) {
     confirmEmailVerification,
     verifyResetCode,
     confirmReset,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { MessageSquare, Search, Phone, Mail, MessageCircle } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb as db } from '@/admin/lib/adminFirebase';
 import { useAdminCollection } from '@/admin/hooks/useAdminCollection';
 import { LoadingState, ErrorState, EmptyState } from '@/admin/components/StateViews';
 import StatusBadge from '@/admin/components/StatusBadge';

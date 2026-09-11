@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LogOut, ShieldCheck, RefreshCw, Package, MapPin, Heart, Users,
-  Facebook, MessageCircle, Instagram, Send,
+  Facebook, MessageCircle, Instagram, Send, Pencil, Check as CheckIcon, X as XIcon,
 } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
 import { useAuth } from '@/lib/AuthContext';
@@ -62,8 +62,48 @@ function formatMemberSince(createdAt, fallbackAuthCreationTime) {
   return date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 }
 
+// Validation for the editable profile form. Kept in the page (not
+// AuthContext) — same pattern CreateAccount.jsx already uses.
+function validateProfileForm(form) {
+  const errors = {};
+  if (!form.fullName.trim()) errors.fullName = 'Name cannot be blank.';
+  if (!form.phone.trim() || form.phone.replace(/\D/g, '').length !== 10) {
+    errors.phone = 'Enter a valid 10-digit phone number.';
+  }
+  if (form.alternatePhone && form.alternatePhone.replace(/\D/g, '').length !== 10) {
+    errors.alternatePhone = 'Enter a valid 10-digit phone number.';
+  }
+  if (form.pincode && !/^\d{6}$/.test(form.pincode.trim())) {
+    errors.pincode = 'Enter a valid 6-digit pincode.';
+  }
+  return errors;
+}
+
+// Small field renderer for view mode — shows "Not added" for empty
+// optional fields rather than a blank/awkward gap.
+function InfoField({ label, value }) {
+  return (
+    <div className="border border-ivory/10 bg-ivory/5 backdrop-blur-sm rounded-lg px-5 py-4">
+      <dt className="label-meta text-ivory/40">{label}</dt>
+      <dd className={`mt-1.5 text-base sm:text-lg font-display truncate ${value ? 'text-ivory' : 'text-ivory/35 italic'}`}>
+        {value || 'Not added'}
+      </dd>
+    </div>
+  );
+}
+
+function EditField({ label, error, children }) {
+  return (
+    <div>
+      <label className="label-meta text-ivory/50 mb-1 block">{label}</label>
+      {children}
+      {error && <p className="mt-1 text-[11px] text-red-300">{error}</p>}
+    </div>
+  );
+}
+
 export default function Account() {
-  const { user, profile, loading, logout, resendVerification, refreshUser } = useAuth();
+  const { user, profile, loading, logout, resendVerification, refreshUser, updateUserProfile } = useAuth();
   const navigate = useNavigate();
 
   const isGoogleUser =
@@ -74,6 +114,13 @@ export default function Account() {
   const [resendError, setResendError] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [checking, setChecking] = useState(false);
+
+  // Edit Profile state
+  const [editing, setEditing] = useState(false);
+  const [profileForm, setProfileForm] = useState(null);
+  const [profileErrors, setProfileErrors] = useState({});
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   useEffect(() => {
     if (!loading && !user) navigate('/login', { replace: true });
@@ -135,10 +182,65 @@ export default function Account() {
     ...SPACE_SECTIONS.map((s) => ({ key: s.key, label: s.label })),
   ];
 
+  const startEditing = () => {
+    setProfileForm({
+      fullName: profile?.fullName || '',
+      phone: profile?.phone || '',
+      alternatePhone: profile?.alternatePhone || '',
+      address: profile?.address || '',
+      city: profile?.city || '',
+      state: profile?.state || '',
+      pincode: profile?.pincode || '',
+      country: profile?.country || 'India',
+    });
+    setProfileErrors({});
+    setSaveMessage('');
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+    setProfileForm(null);
+    setProfileErrors({});
+  };
+
+  const updateFormField = (key) => (e) =>
+    setProfileForm((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const handleSaveProfile = async () => {
+    if (!profileForm || savingProfile) return;
+    const errors = validateProfileForm(profileForm);
+    setProfileErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setSavingProfile(true);
+    try {
+      await updateUserProfile({
+        fullName: profileForm.fullName.trim(),
+        phone: profileForm.phone.replace(/\D/g, ''),
+        alternatePhone: profileForm.alternatePhone.replace(/\D/g, ''),
+        address: profileForm.address.trim(),
+        city: profileForm.city.trim(),
+        state: profileForm.state.trim(),
+        pincode: profileForm.pincode.trim(),
+        country: profileForm.country.trim(),
+      });
+      setEditing(false);
+      setProfileForm(null);
+      setSaveMessage('Profile updated.');
+      setTimeout(() => setSaveMessage(''), 4000);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[ABIXMART] Profile update failed:', err?.code, err?.message, err);
+      setProfileErrors({ form: 'Could not save your changes. Please try again.' });
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   return (
     <PageTransition>
       <section className="relative min-h-[100svh] bg-charcoal text-ivory">
-        {/* Immersive mineral environment spanning the full page, not just a header band */}
         <img
           src={mineralBg}
           alt=""
@@ -197,7 +299,7 @@ export default function Account() {
             </div>
           </div>
 
-          {/* Navigation — logout intentionally lives near identity above, not here */}
+          {/* Navigation */}
           <div className="sticky top-0 z-20 backdrop-blur-xl bg-charcoal/70 border-y border-ivory/10">
             <div className="mx-auto max-w-6xl px-6 lg:px-10">
               <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar">
@@ -227,29 +329,176 @@ export default function Account() {
             {activeSection === 'profile' && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="font-display text-2xl text-ivory">Profile</h2>
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      ['Full Name', fullName],
-                      ['Email', user.email],
-                      ['Phone', profile?.phone || '—'],
-                      ['Member Since', memberSince],
-                      ['Email Status', verified ? 'Verified' : 'Not verified'],
-                      ['Sign-in Method', isGoogleUser ? 'Google' : 'Email & Password'],
-                    ].map(([label, value]) => (
-                      <div
-                        key={label}
-                        className="border border-ivory/10 bg-ivory/5 backdrop-blur-sm rounded-lg px-5 py-4"
+                  <div className="flex items-center justify-between gap-4">
+                    <h2 className="font-display text-2xl text-ivory">Profile</h2>
+                    {!editing && (
+                      <button
+                        onClick={startEditing}
+                        className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-luxe-sm text-ivory/60 hover:text-ivory transition-colors border border-ivory/15 hover:border-ivory/30 rounded-full px-3.5 py-2 shrink-0"
                       >
-                        <dt className="label-meta text-ivory/40">{label}</dt>
-                        <dd className="mt-1.5 text-ivory text-base sm:text-lg font-display truncate">{value}</dd>
-                      </div>
-                    ))}
+                        <Pencil size={12} />
+                        Edit Profile
+                      </button>
+                    )}
                   </div>
+
+                  {saveMessage && !editing && (
+                    <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-gold-light">
+                      <CheckIcon size={14} /> {saveMessage}
+                    </p>
+                  )}
+
+                  {!editing ? (
+                    <>
+                      <div className="mt-6">
+                        <span className="label-meta text-ivory/40">Personal Information</span>
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <InfoField label="Full Name" value={fullName} />
+                          <InfoField label="Email" value={user.email} />
+                          <InfoField label="Phone" value={profile?.phone} />
+                          <InfoField label="Alternate Phone" value={profile?.alternatePhone} />
+                          <InfoField label="Member Since" value={memberSince} />
+                          <InfoField label="Sign-in Method" value={isGoogleUser ? 'Google' : 'Email & Password'} />
+                        </div>
+                      </div>
+
+                      <div className="mt-6">
+                        <span className="label-meta text-ivory/40">Address</span>
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <InfoField label="Address" value={profile?.address} />
+                          <InfoField label="City" value={profile?.city} />
+                          <InfoField label="State" value={profile?.state} />
+                          <InfoField label="Pincode" value={profile?.pincode} />
+                          <InfoField label="Country" value={profile?.country} />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-6 space-y-8">
+                      {profileErrors.form && (
+                        <div className="border border-red-400/40 bg-red-950/30 text-red-200 text-sm px-4 py-2.5">
+                          {profileErrors.form}
+                        </div>
+                      )}
+
+                      <div>
+                        <span className="label-meta text-ivory/40">Personal Information</span>
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <EditField label="Full Name" error={profileErrors.fullName}>
+                            <input
+                              value={profileForm.fullName}
+                              onChange={updateFormField('fullName')}
+                              className="express-input-inverse"
+                              placeholder="Your name"
+                            />
+                          </EditField>
+                          <EditField label="Email">
+                            <input
+                              value={user.email}
+                              disabled
+                              className="express-input-inverse opacity-50 cursor-not-allowed"
+                            />
+                          </EditField>
+                          <EditField label="Phone" error={profileErrors.phone}>
+                            <input
+                              value={profileForm.phone}
+                              onChange={(e) =>
+                                setProfileForm((prev) => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) }))
+                              }
+                              inputMode="numeric"
+                              className="express-input-inverse"
+                              placeholder="10-digit mobile"
+                            />
+                          </EditField>
+                          <EditField label="Alternate Phone" error={profileErrors.alternatePhone}>
+                            <input
+                              value={profileForm.alternatePhone}
+                              onChange={(e) =>
+                                setProfileForm((prev) => ({ ...prev, alternatePhone: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) }))
+                              }
+                              inputMode="numeric"
+                              className="express-input-inverse"
+                              placeholder="Optional"
+                            />
+                          </EditField>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="label-meta text-ivory/40">Address</span>
+                        <div className="mt-3 space-y-4">
+                          <EditField label="Address">
+                            <textarea
+                              value={profileForm.address}
+                              onChange={updateFormField('address')}
+                              rows={2}
+                              className="express-input-inverse resize-none"
+                              placeholder="House no, street, area"
+                            />
+                          </EditField>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <EditField label="City">
+                              <input
+                                value={profileForm.city}
+                                onChange={updateFormField('city')}
+                                className="express-input-inverse"
+                                placeholder="City"
+                              />
+                            </EditField>
+                            <EditField label="State">
+                              <input
+                                value={profileForm.state}
+                                onChange={updateFormField('state')}
+                                className="express-input-inverse"
+                                placeholder="State"
+                              />
+                            </EditField>
+                            <EditField label="Pincode" error={profileErrors.pincode}>
+                              <input
+                                value={profileForm.pincode}
+                                onChange={(e) =>
+                                  setProfileForm((prev) => ({ ...prev, pincode: e.target.value.replace(/[^0-9]/g, '').slice(0, 6) }))
+                                }
+                                inputMode="numeric"
+                                className="express-input-inverse"
+                                placeholder="6-digit pincode"
+                              />
+                            </EditField>
+                            <EditField label="Country">
+                              <input
+                                value={profileForm.country}
+                                onChange={updateFormField('country')}
+                                className="express-input-inverse"
+                                placeholder="Country"
+                              />
+                            </EditField>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={savingProfile}
+                          className="btn-primary-inverse inline-flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          <CheckIcon size={14} />
+                          {savingProfile ? 'Saving…' : 'Save Changes'}
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          disabled={savingProfile}
+                          className="inline-flex items-center justify-center gap-2 h-14 px-6 border border-ivory/20 text-ivory/80 text-[12px] font-semibold tracking-luxe-sm uppercase hover:bg-ivory/10 transition-colors disabled:opacity-50"
+                        >
+                          <XIcon size={14} />
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Verification — only surfaces when action is actually needed;
-                    verified users already see the small badge in the hero above. */}
+                {/* Verification */}
                 {!verified && (
                   <div className="border border-ivory/10 bg-ivory/5 backdrop-blur-sm rounded-lg p-6 sm:p-7">
                     <div className="flex items-center gap-2">
