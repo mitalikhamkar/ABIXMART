@@ -9,7 +9,7 @@ import PageTransition from '@/components/abix/PageTransition';
 import { useAuth } from '@/lib/AuthContext';
 import mineralBg from '@/assets/shilajit-steps/himalayaBG.png';
 import logo from '@/assets/logo/Abixmart-header.png';
-
+// ABIXMART account branding
 const RESEND_COOLDOWN_S = 30;
 
 const SPACE_SECTIONS = [
