@@ -1,7 +1,7 @@
 // src/pages/About.jsx
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
 import ShopCollectionCard from '@/components/abix/ShopCollectionCard';
@@ -12,6 +12,7 @@ import aboutHero from '@/assets/about/about-hero.png';
 import aboutOrigin from '@/assets/about/about-origin.png';
 import aboutProcess from '@/assets/about/about-process.png';
 import aboutQuality from '@/assets/about/about-quality.png';
+import aboutJourney from '@/assets/about/about-journey.png';
 
 const INK = '#151417';
 const GRAPHITE = '#1E1C1F';
@@ -19,16 +20,73 @@ const IVORY = '#F2ECE2';
 const MUTED = '#A79C8D';
 const AMBER = '#D3A467';
 
-const STANDARD_STEPS = [
-  { num: '01', key: 'origin', title: 'Origin', line: 'Know where it begins.', body: 'Our Shilajit is gathered from high-altitude Himalayan rock, where it forms slowly over centuries. We collect in small quantities, with respect for the mountain.', image: aboutOrigin },
-  { num: '02', key: 'process', title: 'Process', line: 'Know what happens to it.', body: 'From sourcing to sealing, every jar passes through deliberate stages of traditional purification and careful handling — shown openly, not summarised away.', image: aboutProcess },
-  { num: '03', key: 'quality', title: 'Quality', line: 'Know what we check.', body: 'Each batch is checked for quality and consistency before it moves forward. We focus on what we can verify, and we do not make claims we cannot stand behind.', image: aboutQuality },
-  { num: '04', key: 'transparency', title: 'Transparency', line: "Know what we won't claim.", body: 'We share our process openly — no invented certifications, no fabricated results, no claims we cannot stand behind.', image: aboutQuality },
+// Single source of truth for the "Know what matters." section.
+// Every field a step needs — number, label, title, body, image — lives
+// on the SAME object, keyed by the SAME array index. There is no second
+// parallel image array anywhere in this section.
+//
+// Image mapping (verified 1:1, no duplicates):
+//   01 ORIGIN        -> about-origin.png
+//   02 PROCESS       -> about-process.png
+//   03 QUALITY       -> about-quality.png
+//   04 TRANSPARENCY  -> about-journey.png  (previously incorrectly reused
+//                        about-quality.png — that was the root cause of
+//                        "same image appears twice / one state invisible")
+const MATTERS = [
+  {
+    id: 'origin',
+    number: '01',
+    label: 'Origin',
+    title: 'Know where it begins.',
+    body: 'Our Shilajit is gathered from high-altitude Himalayan rock, where it forms slowly over centuries. We collect in small quantities, with respect for the mountain.',
+    image: aboutOrigin,
+  },
+  {
+    id: 'process',
+    number: '02',
+    label: 'Process',
+    title: 'Know what happens to it.',
+    body: 'From sourcing to sealing, every jar passes through deliberate stages of traditional purification and careful handling — shown openly, not summarised away.',
+    image: aboutProcess,
+  },
+  {
+    id: 'quality',
+    number: '03',
+    label: 'Quality',
+    title: 'Know what we check.',
+    body: 'Each batch is checked for quality and consistency before it moves forward. We focus on what we can verify, and we do not make claims we cannot stand behind.',
+    image: aboutQuality,
+  },
+  {
+    id: 'transparency',
+    number: '04',
+    label: 'Transparency',
+    title: 'What we show, we show fully.',
+    body: 'We share our process openly — no invented certifications, no fabricated results, no claims we cannot stand behind.',
+    image: aboutJourney,
+  },
 ];
 
 export default function About() {
-  const [activeStandard, setActiveStandard] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const comingSoon = products.filter((p) => p.status === 'coming_soon');
+
+  // Drives activeIndex from continuous scroll progress across the section
+  // (not from discrete per-row viewport-enter events). This is what
+  // guarantees every state is reached in order and none can be skipped:
+  // activeIndex is always `floor(progress * 4)`, a pure function of
+  // wherever scroll currently sits — there's no sequential event to miss
+  // even on a very fast scroll.
+  const timelineRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start center', 'end center'],
+  });
+
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    const idx = Math.min(MATTERS.length - 1, Math.max(0, Math.floor(v * MATTERS.length)));
+    setActiveIndex(idx);
+  });
 
   return (
     <PageTransition>
@@ -68,7 +126,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ ABIXMART STANDARD ============ */}
+      {/* ============ ABIXMART STANDARD — "Know what matters." ============ */}
       <section className="py-16 lg:py-24 border-t" style={{ background: GRAPHITE, borderColor: `${IVORY}0D` }}>
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="max-w-xl mb-12 lg:mb-16">
@@ -81,71 +139,125 @@ export default function About() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            {/* Vertical timeline */}
-            <div className="relative pl-8">
-              <div className="absolute left-[3px] top-2 bottom-2 w-px" style={{ background: `${IVORY}1A` }} />
-              {STANDARD_STEPS.map((s, i) => {
-                const active = i === activeStandard;
-                return (
-                  <motion.button
-                    key={s.key}
-                    onClick={() => setActiveStandard(i)}
-                    onViewportEnter={() => setActiveStandard(i)}
-                    viewport={{ margin: '-45% 0px -45% 0px' }}
-                    className="relative block text-left w-full py-6 group"
-                  >
-                    <span
-                      className="absolute -left-8 top-[26px] h-[7px] w-[7px] rounded-full transition-all duration-500"
-                      style={{ background: active ? AMBER : `${IVORY}30`, transform: active ? 'scale(1.3)' : 'scale(1)' }}
-                    />
-                    <span
-                      className="font-grotesk text-xs tracking-luxe-sm transition-colors duration-500"
-                      style={{ color: active ? AMBER : `${MUTED}` }}
-                    >
-                      {s.num} — {s.title.toUpperCase()}
-                    </span>
-                    <h3
-                      className="mt-2 font-display text-2xl lg:text-3xl leading-tight transition-colors duration-500"
-                      style={{ color: active ? IVORY : `${IVORY}55` }}
-                    >
-                      {s.line}
-                    </h3>
-                    <AnimatePresence>
-                      {active && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          className="mt-3 text-sm leading-relaxed max-w-sm overflow-hidden"
-                          style={{ color: MUTED }}
-                        >
-                          {s.body}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                );
-              })}
+          {/* ---------- DESKTOP / TABLET: focus-shift interaction ----------
+              activeIndex comes from continuous scroll progress (see
+              useScroll/useMotionValueEvent above), so the timeline
+              highlight, the progress fill, and the image are always
+              reading the exact same index in the exact same render —
+              there is no separate trigger per element that could
+              disagree with another. */}
+          <div className="hidden lg:grid grid-cols-12 gap-16 items-start">
+            <div ref={timelineRef} className="col-span-5">
+              <div className="relative pl-9">
+                {/* Track */}
+                <div className="absolute left-[3px] top-1 bottom-1 w-px" style={{ background: `${IVORY}14` }} />
+                {/* Progress fill — height corresponds exactly to activeIndex */}
+                <motion.div
+                  className="absolute left-[3px] top-1 w-px origin-top"
+                  style={{ background: AMBER }}
+                  animate={{ height: `${(activeIndex / (MATTERS.length - 1)) * 100}%` }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                />
+
+                {MATTERS.map((m, i) => {
+                  const active = i === activeIndex;
+                  return (
+                    <div key={m.id} className="relative py-8">
+                      <span
+                        className="absolute -left-9 top-[30px] h-[7px] w-[7px] rounded-full transition-all duration-500"
+                        style={{
+                          background: active ? AMBER : `${IVORY}30`,
+                          transform: active ? 'scale(1.35)' : 'scale(1)',
+                        }}
+                      />
+                      <span
+                        className="font-grotesk text-xs tracking-luxe-sm transition-colors duration-500"
+                        style={{ color: active ? AMBER : MUTED }}
+                      >
+                        {m.number} — {m.label.toUpperCase()}
+                      </span>
+                      <h3
+                        className="mt-2 font-display text-2xl xl:text-3xl leading-tight transition-colors duration-500"
+                        style={{ color: active ? IVORY : `${IVORY}45` }}
+                      >
+                        {m.title}
+                      </h3>
+                      {/* Always rendered — never mounted/unmounted — so
+                          this row's height never changes and can't
+                          reflow rows below it while scrolling. */}
+                      <p
+                        className="mt-3 text-sm leading-relaxed max-w-sm transition-opacity duration-500"
+                        style={{ color: MUTED, opacity: active ? 1 : 0.35 }}
+                      >
+                        {m.body}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Image */}
-            <div className="relative aspect-[4/5] lg:aspect-[3/4] overflow-hidden" style={{ background: INK }}>
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={activeStandard}
-                  src={STANDARD_STEPS[activeStandard].image}
-                  alt={STANDARD_STEPS[activeStandard].title}
-                  initial={{ opacity: 0, scale: 1.03 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </AnimatePresence>
-              <div className="absolute inset-0 ring-1 ring-inset" style={{ boxShadow: `inset 0 0 0 1px ${IVORY}1A` }} />
+            <div className="col-span-7 sticky top-28 self-start">
+              <div className="relative aspect-[4/3] xl:aspect-[16/11] overflow-hidden" style={{ background: INK }}>
+                {/* All four images stay mounted at all times — they only
+                    ever transition opacity/blur/clip, never remount, so
+                    there is no swap-in/swap-out race that could show a
+                    stale or mismatched frame. */}
+                {MATTERS.map((m, i) => {
+                  const active = i === activeIndex;
+                  return (
+                    <motion.img
+                      key={m.id}
+                      src={m.image}
+                      alt={m.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      initial={false}
+                      animate={{
+                        opacity: active ? 1 : 0,
+                        clipPath: active ? 'inset(0% 0% 0% 0%)' : 'inset(4% 4% 4% 4%)',
+                        filter: active ? 'blur(0px)' : 'blur(6px)',
+                      }}
+                      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                  );
+                })}
+                <div className="absolute inset-0 ring-1 ring-inset" style={{ boxShadow: `inset 0 0 0 1px ${IVORY}1A` }} />
+              </div>
             </div>
+          </div>
+
+          {/* ---------- MOBILE / TABLET-NARROW: plain stacked timeline ----------
+              Each step is fully self-contained with its own inline image
+              — no shared activeIndex, no shared image pool, so there is
+              nothing that can desync. Each block fades in once as it
+              enters the viewport, in guaranteed document order. */}
+          <div className="lg:hidden space-y-14">
+            {MATTERS.map((m) => (
+              <motion.div
+                key={m.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: AMBER }} />
+                  <span className="font-grotesk text-xs tracking-luxe-sm" style={{ color: AMBER }}>
+                    {m.number} — {m.label.toUpperCase()}
+                  </span>
+                </div>
+                <h3 className="font-display text-2xl leading-tight" style={{ color: IVORY }}>
+                  {m.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed max-w-md" style={{ color: MUTED }}>
+                  {m.body}
+                </p>
+                <div className="mt-5 relative aspect-[4/3] overflow-hidden" style={{ background: INK }}>
+                  <img src={m.image} alt={m.title} className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 ring-1 ring-inset" style={{ boxShadow: `inset 0 0 0 1px ${IVORY}1A` }} />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

@@ -4,7 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { X, ShoppingBag, BookOpen, Package, MessageCircle } from 'lucide-react';
 import { useShop } from '@/lib/ShopContext';
 
-// ABIXMART Assist — a persistent floating green button that opens a
+const INK = '#151417';
+const GRAPHITE = '#1E1C1F';
+const STONE = '#211E1F';
+const IVORY = '#F2ECE2';
+const MUTED = '#A79C8D';
+const AMBER = '#D3A467';
+
+// ABIXMART Assist — a persistent floating button that opens a
 // full-screen simplified menu. Multi-page aware.
 export default function AbixmartAssist() {
   const { assistOpen, openAssist, closeAssist, openCheckout } = useShop();
@@ -26,14 +33,29 @@ export default function AbixmartAssist() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 1, type: 'spring', stiffness: 200, damping: 18 }}
         onClick={openAssist}
-        className="fixed bottom-5 right-5 lg:bottom-7 lg:right-7 z-40 h-14 lg:h-16 px-5 lg:px-6 inline-flex items-center gap-2.5 bg-greendark text-ivory rounded-full shadow-2xl hover:bg-greendark/90 group"
+        className="fixed bottom-5 right-5 lg:bottom-7 lg:right-7 z-40 h-11 lg:h-12 px-4 lg:px-5 inline-flex items-center gap-2.5 border transition-all duration-300 hover:-translate-y-0.5 rounded-full group"
+        style={{
+          background: GRAPHITE,
+          borderColor: 'rgba(242,236,226,0.14)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(211,164,103,0.4)';
+          e.currentTarget.style.background = '#252225';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(242,236,226,0.14)';
+          e.currentTarget.style.background = GRAPHITE;
+        }}
         aria-label="ABIXMART Assist"
       >
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-60 animate-ping" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold" />
+        <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: AMBER }} />
+        <span
+          className="font-grotesk text-[11px] lg:text-[12px] font-medium tracking-luxe-sm uppercase"
+          style={{ color: IVORY }}
+        >
+          Need help?
         </span>
-        <span className="font-grotesk text-[12px] font-semibold tracking-luxe-sm uppercase">Need help?</span>
       </motion.button>
 
       <AnimatePresence>
@@ -42,7 +64,8 @@ export default function AbixmartAssist() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-greendark/95 backdrop-blur-md flex items-center justify-center p-6"
+            className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-6"
+            style={{ background: `${INK}F2` }}
             onClick={closeAssist}
           >
             <motion.div
@@ -55,10 +78,22 @@ export default function AbixmartAssist() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <span className="label-meta text-gold-light">ABIXMART Assist</span>
-                  <h2 className="mt-2 font-display text-4xl lg:text-5xl text-ivory">How can we help?</h2>
+                  <span className="label-meta" style={{ color: AMBER }}>ABIXMART Assist</span>
+                  <h2 className="mt-2 font-display text-4xl lg:text-5xl" style={{ color: IVORY }}>How can we help?</h2>
                 </div>
-                <button onClick={closeAssist} className="h-11 w-11 inline-flex items-center justify-center text-ivory border border-ivory/25 hover:border-gold hover:text-gold transition-colors rounded-full">
+                <button
+                  onClick={closeAssist}
+                  className="h-11 w-11 inline-flex items-center justify-center border rounded-full transition-colors"
+                  style={{ color: IVORY, borderColor: `${IVORY}30` }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = AMBER;
+                    e.currentTarget.style.color = AMBER;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = `${IVORY}30`;
+                    e.currentTarget.style.color = IVORY;
+                  }}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -68,18 +103,34 @@ export default function AbixmartAssist() {
                   <button
                     key={o.key}
                     onClick={o.action}
-                    className="group flex items-start gap-4 p-6 bg-ivory/5 border border-ivory/15 hover:bg-ivory hover:text-greendark transition-colors duration-300 text-left"
+                    className="group flex items-start gap-4 p-6 border transition-colors duration-300 text-left"
+                    style={{ background: STONE, borderColor: `${IVORY}1A` }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = IVORY;
+                      e.currentTarget.style.borderColor = IVORY;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = STONE;
+                      e.currentTarget.style.borderColor = `${IVORY}1A`;
+                    }}
                   >
-                    <o.icon size={22} className="mt-0.5 text-gold group-hover:text-greendark transition-colors" />
+                    <o.icon size={22} className="mt-0.5 transition-colors" style={{ color: AMBER }} />
                     <div>
-                      <h3 className="font-display text-2xl text-ivory group-hover:text-greendark transition-colors">{o.label}</h3>
-                      <p className="mt-1 text-sm text-ivory/60 group-hover:text-greendark/60 transition-colors">{o.desc}</p>
+                      <h3
+                        className="font-display text-2xl transition-colors"
+                        style={{ color: IVORY }}
+                      >
+                        {o.label}
+                      </h3>
+                      <p className="mt-1 text-sm transition-colors" style={{ color: MUTED }}>
+                        {o.desc}
+                      </p>
                     </div>
                   </button>
                 ))}
               </div>
 
-              <p className="mt-8 text-center text-xs text-ivory/45">
+              <p className="mt-8 text-center text-xs" style={{ color: `${MUTED}` }}>
                 Designed to be simple for everyone — no account needed to buy.
               </p>
             </motion.div>

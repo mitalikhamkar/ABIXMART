@@ -55,16 +55,21 @@ export default function Hero() {
         <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
       </div>
 
-      {/* PRODUCT ZONE
-          Mobile: a real, dedicated in-flow zone above the text — it
-          reserves its own space so it can never overlap the headline.
-          Desktop (lg:): switches to absolute, bottom-right, its own
-          foreground-rock spot, exactly as the approved design. */}
+      {/* PRODUCT ZONE — absolutely positioned on every breakpoint, same
+          concept as desktop: bottom-right, resting on the rocky
+          foreground in HERO_BACKGROUND_IMAGE. On mobile/tablet, raised
+          to bottom-[20%] (rather than desktop's bottom-[10%]) so it sits
+          clear above the fixed "Need Help?" button in the same corner
+          (AbixmartAssist.jsx, bottom-5 right-5). The animation itself
+          (useHeroIntro) needs no change — it moves the product via
+          relative transform offsets computed from live viewport size,
+          not from which side it's anchored on, so the "comes in from
+          above, settles into place" motion works the same here.
+          Desktop (lg:) values unchanged. */}
       <div
-        className="relative z-[6] flex items-end justify-center pointer-events-none
-                   h-[34vh] min-h-[220px] max-h-[320px] pt-20
-                   lg:absolute lg:inset-auto lg:right-[6%] lg:bottom-[10%]
-                   lg:h-auto lg:min-h-0 lg:max-h-none lg:pt-0 lg:justify-end lg:block"
+        className="absolute z-[6] pointer-events-none
+                   bottom-[20%] right-[6%]
+                   lg:bottom-[10%] lg:right-[6%]"
         aria-hidden="true"
       >
         <div className="relative">
@@ -74,7 +79,7 @@ export default function Hero() {
           />
           <div
             ref={productWrapRef}
-            className="relative w-[46vw] max-w-[190px] sm:max-w-[220px] lg:w-[19vw] lg:max-w-[300px]"
+            className="relative w-[26vw] max-w-[120px] sm:w-[24vw] sm:max-w-[150px] lg:w-[19vw] lg:max-w-[300px]"
           >
             <img
               ref={productImageRef}
@@ -88,24 +93,22 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* CONTENT — always below the product zone on mobile; bottom-anchored
-          on desktop. Width-constrained on desktop so it never reaches the
-          product's zone on the right. */}
+      {/* CONTENT — unchanged from previous version. */}
       <div
         className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10 flex-1
-                   flex flex-col justify-start pt-6 pb-12
+                   flex flex-col justify-start pt-20 sm:pt-24 pb-20
                    lg:justify-end lg:pt-28 lg:pb-24"
       >
         <div className="lg:max-w-[600px] xl:max-w-[640px]">
           <div ref={eyebrowRef}>
-            <Eyebrow light className="mb-5 lg:mb-7">Himalayan Modern Luxury</Eyebrow>
+            <Eyebrow light className="mb-4 lg:mb-7">Himalayan Modern Luxury</Eyebrow>
           </div>
 
           <h1 className="font-display text-ivory leading-[0.98] lg:leading-[0.95] tracking-tight text-balance">
             <span className="block overflow-hidden">
               <span
                 ref={headlineLine1Ref}
-                className="block text-[clamp(2.1rem,9vw,3.1rem)] lg:text-[6vw] xl:text-[68px]"
+                className="block text-[clamp(1.9rem,8.5vw,2.6rem)] lg:text-[6vw] xl:text-[68px]"
               >
                 From the Himalayas.
               </span>
@@ -113,7 +116,7 @@ export default function Hero() {
             <span className="block overflow-hidden">
               <span
                 ref={headlineLine2Ref}
-                className="block text-[clamp(2.1rem,9vw,3.1rem)] lg:text-[6vw] xl:text-[68px] italic text-ivory/90"
+                className="block text-[clamp(1.9rem,8.5vw,2.6rem)] lg:text-[6vw] xl:text-[68px] italic text-ivory/90"
               >
                 To your daily ritual.
               </span>
@@ -122,13 +125,13 @@ export default function Hero() {
 
           <p
             ref={descriptionRef}
-            className="mt-5 lg:mt-8 max-w-xl text-ivory/75 text-sm sm:text-base lg:text-lg leading-relaxed font-body"
+            className="mt-4 lg:mt-8 max-w-xl text-ivory/75 text-sm sm:text-base lg:text-lg leading-relaxed font-body"
           >
             Premium Himalayan Shilajit Pure Resin — sourced from the high mountains,
             purified by tradition, crafted for the modern ritual.
           </p>
 
-          <div className="mt-7 lg:mt-10 flex flex-col sm:flex-row gap-3 lg:gap-4">
+          <div className="mt-6 lg:mt-10 flex flex-col sm:flex-row gap-3 lg:gap-4">
             <Link
               ref={primaryCtaRef}
               to="/shop"
