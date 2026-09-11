@@ -14,13 +14,17 @@ const AMBER = '#D3A467';
 // ABIXMART Assist — a persistent floating button that opens a
 // full-screen simplified menu. Multi-page aware.
 export default function AbixmartAssist() {
-  const { assistOpen, openAssist, closeAssist, openCheckout } = useShop();
+  const { assistOpen, openAssist, closeAssist } = useShop();
   const navigate = useNavigate();
 
   const go = (path) => { closeAssist(); navigate(path); };
 
   const options = [
-    { key: 'buy', label: 'Buy a product', desc: 'A simple, guided purchase.', icon: ShoppingBag, action: () => { closeAssist(); openCheckout(); } },
+    // CHANGED — temporary inquiry-only deployment: no real purchase flow
+    // exists yet, so this no longer opens CheckoutModal. Routes to the
+    // Shilajit product page, where "Send Inquiry" carries quantity into
+    // the existing Support-page inquiry form.
+    { key: 'buy', label: 'Enquire about a product', desc: 'Ask about availability and pricing.', icon: ShoppingBag, action: () => go('/shop/shilajit') },
     { key: 'understand', label: 'Understand a product', desc: 'Know what you are buying.', icon: BookOpen, action: () => go('/shop/shilajit') },
     { key: 'track', label: 'Track my order', desc: 'Where is my order?', icon: Package, action: () => go('/support#tracking') },
     { key: 'talk', label: 'Talk to us', desc: 'WhatsApp support.', icon: MessageCircle, action: () => window.open('https://wa.me/910000000000', '_blank') },
@@ -131,7 +135,7 @@ export default function AbixmartAssist() {
               </div>
 
               <p className="mt-8 text-center text-xs" style={{ color: `${MUTED}` }}>
-                Designed to be simple for everyone — no account needed to buy.
+                Designed to be simple for everyone — no account needed to enquire.
               </p>
             </motion.div>
           </motion.div>

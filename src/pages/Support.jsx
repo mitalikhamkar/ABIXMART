@@ -1,6 +1,6 @@
 // src/pages/Support.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ShoppingBag,
@@ -18,7 +18,13 @@ import { db } from '@/lib/firebase';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
 import FAQAccordion from '@/components/abix/FAQAccordion';
-import { supportOptions, faqs, orderSteps } from '@/data/products';
+import {
+  supportOptions,
+  faqs,
+  orderSteps,
+  getProductBySlug,
+} from '@/data/products';
+import { useAuth } from '@/lib/AuthContext';
 
 import supportHero from '@/assets/support/support-hero.png';
 import supportHelpCards from '@/assets/support/support-help-cards.png';
@@ -44,11 +50,13 @@ const AMBER = '#D3A467';
 const AMBER_FILL = '#BE8A4B';
 
 export default function Support() {
+  const [searchParams] = useSearchParams();
+  const { user, profile } = useAuth();
+
   const [orderId, setOrderId] = useState('');
   const [tracked, setTracked] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  // Interface stage only — not a real tracking result.
   const demoStage = 3;
 
   const handleTrack = (e) => {
@@ -56,19 +64,78 @@ export default function Support() {
     setTracked(true);
   };
 
-  // Inquiry form writes to Firestore `inquiries/{inquiryId}`.
+  // Inquiry form writes to Firestore `inquiries/{inquiryId}` —
+  // the same collection and schema the admin panel's Inquiries section reads.
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
     email: '',
     phone: '',
     productInterest: '',
+    quantity: '',
     message: '',
   });
+
+  // Product context carried in from a product page's "Send Inquiry"
+  // action (ProductDetail.jsx / ProductQuickView.jsx), via
+  // ?product=slug&quantity=n.
+  // Kept separate from the form fields so the submitted inquiry
+  // always records the real productId, even if the customer edits
+  // the product-interest text afterward.
+  const [productContext, setProductContext] = useState(null);
 
   const [inquirySubmitting, setInquirySubmitting] = useState(false);
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
   const [inquiryError, setInquiryError] = useState('');
   const [focusedField, setFocusedField] = useState(null);
+
+  // Prefill from ?product=&quantity= — runs once on mount.
+  useEffect(() => {
+    const slug = searchParams.get('product');
+    const quantityParam = searchParams.get('quantity');
+
+    if (!slug) return;
+
+    const product = getProductBySlug(slug);
+
+    if (!product) return;
+
+    const quantity =
+      quantityParam && Number(quantityParam) > 0
+        ? String(Number(quantityParam))
+        : '1';
+
+    setProductContext({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+    });
+
+    setInquiryForm((prev) => ({
+      ...prev,
+      productInterest: product.name,
+      quantity,
+      message: `I am interested in ${product.name}. Quantity requested: ${quantity}.`,
+    }));
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Prefill contact fields from the authenticated user, once,
+  // without ever overwriting anything the customer has already typed.
+  const authPrefilledRef = useRef(false);
+
+  useEffect(() => {
+    if (!user || authPrefilledRef.current) return;
+
+    authPrefilledRef.current = true;
+
+    setInquiryForm((prev) => ({
+      ...prev,
+      email: prev.email || user.email || '',
+      name: prev.name || profile?.fullName || '',
+      phone: prev.phone || profile?.phone || '',
+    }));
+  }, [user, profile]);
 
   const updateInquiryField = (key) => (e) =>
     setInquiryForm((prev) => ({
@@ -94,13 +161,22 @@ export default function Support() {
     setInquirySubmitting(true);
 
     try {
+      const quantityNumber = inquiryForm.quantity
+        ? Number(inquiryForm.quantity)
+        : null;
+
       await addDoc(collection(db, 'inquiries'), {
         name: inquiryForm.name.trim(),
         email: inquiryForm.email.trim(),
         phone: inquiryForm.phone.trim(),
         productInterest: inquiryForm.productInterest.trim(),
+        productId: productContext?.id || null,
+        quantity:
+          Number.isFinite(quantityNumber) && quantityNumber > 0
+            ? quantityNumber
+            : null,
         message: inquiryForm.message.trim(),
-        source: 'website',
+        source: productContext ? 'product-inquiry' : 'website',
         status: 'new',
         createdAt: serverTimestamp(),
       });
@@ -112,8 +188,11 @@ export default function Support() {
         email: '',
         phone: '',
         productInterest: '',
+        quantity: '',
         message: '',
       });
+
+      setProductContext(null);
     } catch (err) {
       console.error(
         '[ABIXMART] Inquiry submission failed:',
@@ -248,9 +327,7 @@ export default function Support() {
                           backgroundPosition: `${(i % 3) * 50}% ${
                             Math.floor(i / 3) * 50
                           }%`,
-                          transform: isHovered
-                            ? 'scale(1.08)'
-                            : 'scale(1)',
+                          transform: isHovered ? 'scale(1.08)' : 'scale(1)',
                           transitionTimingFunction:
                             'cubic-bezier(0.16,1,0.3,1)',
                         }}
@@ -421,7 +498,6 @@ export default function Support() {
             </form>
           </div>
 
-          {/* Journey indicator */}
           <div>
             <div className="flex items-center justify-between max-w-md">
               {['Order', 'In Transit', 'Delivered'].map((label, i) => {
@@ -472,9 +548,7 @@ export default function Support() {
                           }}
                           transition={{
                             duration: 0.6,
-                            delay: active
-                              ? i * 0.15 + 0.2
-                              : 0,
+                            delay: active ? i * 0.15 + 0.2 : 0,
                             ease: [0.16, 1, 0.3, 1],
                           }}
                           className="absolute inset-y-0 left-0"
@@ -533,20 +607,14 @@ export default function Support() {
                         <span
                           className="h-6 w-6 rounded-full inline-flex items-center justify-center text-[10px]"
                           style={{
-                            background: done
-                              ? AMBER
-                              : 'transparent',
+                            background: done ? AMBER : 'transparent',
                             color: done ? INK : MUTED,
                             border: done
                               ? 'none'
                               : `1px solid ${IVORY}30`,
                           }}
                         >
-                          {done ? (
-                            <Check size={12} />
-                          ) : (
-                            i + 1
-                          )}
+                          {done ? <Check size={12} /> : i + 1}
                         </span>
 
                         {i < orderSteps.length - 1 && (
@@ -565,9 +633,7 @@ export default function Support() {
                         <h4
                           className="font-display text-base"
                           style={{
-                            color: done
-                              ? IVORY
-                              : `${IVORY}55`,
+                            color: done ? IVORY : `${IVORY}55`,
                           }}
                         >
                           {s.label}
@@ -576,9 +642,7 @@ export default function Support() {
                         <p
                           className="text-xs"
                           style={{
-                            color: done
-                              ? MUTED
-                              : `${MUTED}80`,
+                            color: done ? MUTED : `${MUTED}80`,
                           }}
                         >
                           {s.desc}
@@ -703,22 +767,69 @@ export default function Support() {
         />
 
         <div className="relative mx-auto max-w-3xl px-6 lg:px-10">
-          <Eyebrow light>Talk to ABIXMART</Eyebrow>
+          <Eyebrow light>
+            {productContext ? 'Product Inquiry' : 'Talk to ABIXMART'}
+          </Eyebrow>
 
           <h2
             className="mt-5 font-display text-4xl sm:text-5xl leading-[1.02] tracking-tight"
             style={{ color: IVORY }}
           >
-            Ask us anything.
+            {productContext
+              ? `Ask about ${productContext.name}.`
+              : 'Ask us anything.'}
           </h2>
 
           <p
             className="mt-4 leading-relaxed"
             style={{ color: MUTED }}
           >
-            Have a question about ingredients, sourcing, or an order? Send us
-            a note and we'll get back to you directly.
+            {productContext
+              ? "We'll follow up on availability, pricing, and next steps directly."
+              : "Have a question about ingredients, sourcing, or an order? Send us a note and we'll get back to you directly."}
           </p>
+
+          {productContext && (
+            <div
+              className="mt-6 flex items-center gap-6 border px-5 py-4"
+              style={{
+                borderColor: `${IVORY}1A`,
+                background: GRAPHITE,
+              }}
+            >
+              <div>
+                <span
+                  className="label-meta block"
+                  style={{ color: MUTED }}
+                >
+                  Product
+                </span>
+
+                <span
+                  className="mt-0.5 block font-display text-lg"
+                  style={{ color: IVORY }}
+                >
+                  {productContext.name}
+                </span>
+              </div>
+
+              <div>
+                <span
+                  className="label-meta block"
+                  style={{ color: MUTED }}
+                >
+                  Quantity
+                </span>
+
+                <span
+                  className="mt-0.5 block font-display text-lg"
+                  style={{ color: IVORY }}
+                >
+                  {inquiryForm.quantity || '1'}
+                </span>
+              </div>
+            </div>
+          )}
 
           {inquirySubmitted ? (
             <motion.div
@@ -751,7 +862,7 @@ export default function Support() {
                   className="font-display text-xl"
                   style={{ color: IVORY }}
                 >
-                  Thank you — your message is on its way.
+                  Thank you — your inquiry is on its way.
                 </p>
 
                 <p
@@ -859,28 +970,56 @@ export default function Support() {
                 />
               </div>
 
-              <div>
-                <label
-                  className="label-meta mb-1.5 block"
-                  style={{ color: MUTED }}
-                >
-                  What are you interested in? (optional)
-                </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label
+                    className="label-meta mb-1.5 block"
+                    style={{ color: MUTED }}
+                  >
+                    What are you interested in? (optional)
+                  </label>
 
-                <input
-                  value={inquiryForm.productInterest}
-                  onChange={updateInquiryField('productInterest')}
-                  onFocus={() => setFocusedField('productInterest')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="e.g. Himalayan Shilajit Resin"
-                  className={inputClass}
-                  style={{
-                    borderColor:
-                      focusedField === 'productInterest'
-                        ? AMBER
-                        : `${IVORY}30`,
-                  }}
-                />
+                  <input
+                    value={inquiryForm.productInterest}
+                    onChange={updateInquiryField('productInterest')}
+                    onFocus={() => setFocusedField('productInterest')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="e.g. Himalayan Shilajit Resin"
+                    className={inputClass}
+                    style={{
+                      borderColor:
+                        focusedField === 'productInterest'
+                          ? AMBER
+                          : `${IVORY}30`,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className="label-meta mb-1.5 block"
+                    style={{ color: MUTED }}
+                  >
+                    Quantity (optional)
+                  </label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    value={inquiryForm.quantity}
+                    onChange={updateInquiryField('quantity')}
+                    onFocus={() => setFocusedField('quantity')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="1"
+                    className={inputClass}
+                    style={{
+                      borderColor:
+                        focusedField === 'quantity'
+                          ? AMBER
+                          : `${IVORY}30`,
+                    }}
+                  />
+                </div>
               </div>
 
               <div>
@@ -926,9 +1065,8 @@ export default function Support() {
                 }}
               >
                 <Send size={16} />
-                {inquirySubmitting
-                  ? 'Sending…'
-                  : 'Send Inquiry'}
+
+                {inquirySubmitting ? 'Sending…' : 'Send Inquiry'}
               </button>
             </form>
           )}
