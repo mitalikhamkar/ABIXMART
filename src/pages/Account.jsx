@@ -8,7 +8,7 @@ import {
 import PageTransition from '@/components/abix/PageTransition';
 import { useAuth } from '@/lib/AuthContext';
 import mineralBg from '@/assets/shilajit-steps/himalayaBG.png';
-import logo from '@/assets/logo/abixmart-hero.png';
+import logo from '@/assets/logo/Abixmart-header.png';
 
 const RESEND_COOLDOWN_S = 30;
 
