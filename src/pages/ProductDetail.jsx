@@ -1,16 +1,14 @@
+// src/pages/ProductDetail.jsx — only the info column changed, rest identical to before
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Minus, Plus, ArrowLeft, Heart, Send, Check } from 'lucide-react';
+import { Minus, Plus, ArrowLeft, Heart, Send, Check, BookOpen } from 'lucide-react';
 import PageTransition from '@/components/abix/PageTransition';
 import Eyebrow from '@/components/abix/Eyebrow';
 import ShopCollectionCard from '@/components/abix/ShopCollectionCard';
 import { getProductBySlug, products, openProductTabs, ritualBundles } from '@/data/products';
 import { useShop } from '@/lib/ShopContext';
 
-// Real ABIXMART process photography (not Base44 placeholders) — the same
-// assets referenced throughout the project's shilajit-steps set, mapped
-// here to the four editorial story beats.
 import collectionImg from '@/assets/shilajit-steps/collection.png';
 import purificationImg from '@/assets/shilajit-steps/purification.png';
 import testingImg from '@/assets/shilajit-steps/testing.png';
@@ -18,7 +16,6 @@ import readyImg from '@/assets/shilajit-steps/ReadyToReach.jpeg';
 
 const INK = '#151417';
 const GRAPHITE = '#1E1C1F';
-const STONE = '#211E1F';
 const IVORY = '#F2ECE2';
 const MUTED = '#A79C8D';
 const AMBER = '#D3A467';
@@ -72,9 +69,6 @@ export default function ProductDetail() {
 
   return (
     <PageTransition>
-      {/* =========================================================
-          PRODUCT HERO / INSPECTION AREA
-      ========================================================== */}
       <section className="relative pt-24 lg:pt-32 pb-16 lg:pb-24 overflow-hidden" style={{ background: INK }}>
         <div className="absolute inset-0 grain opacity-[0.04] pointer-events-none" />
 
@@ -88,7 +82,6 @@ export default function ProductDetail() {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Product inspection frame */}
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -128,7 +121,6 @@ export default function ProductDetail() {
               </div>
             </motion.div>
 
-            {/* Info */}
             <div>
               <Eyebrow light>Signature Ritual</Eyebrow>
               <h1
@@ -153,7 +145,6 @@ export default function ProductDetail() {
                 ))}
               </dl>
 
-              {/* Quantity guide */}
               <div className="mt-9">
                 <span className="label-meta" style={{ color: MUTED }}>Quantity guide</span>
                 <div className="mt-3 space-y-2">
@@ -177,7 +168,6 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              {/* Quantity stepper + reference price */}
               <div className="mt-8 flex items-center gap-5">
                 <div className="inline-flex items-center border h-14" style={{ borderColor: `${IVORY}30` }}>
                   <button
@@ -227,6 +217,28 @@ export default function ProductDetail() {
                 </p>
               </div>
 
+              {/* NEW: real button (not a text link), sitting right next
+                  to the inquiry CTA. Navigates with no ?age/?gender —
+                  the dedicated page asks that itself. */}
+              <div className="mt-4">
+                <Link
+                  to="/how-to-take-shilajit"
+                  className="inline-flex items-center justify-center gap-2 h-14 px-8 text-[12px] font-semibold tracking-luxe-sm uppercase border transition-colors duration-300 w-full sm:w-auto"
+                  style={{ borderColor: `${AMBER}60`, color: AMBER, background: 'transparent' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `${AMBER}14`;
+                    e.currentTarget.style.borderColor = AMBER;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = `${AMBER}60`;
+                  }}
+                >
+                  <BookOpen size={16} />
+                  Let's See How To Take Shilajit
+                </Link>
+              </div>
+
               <ul className="mt-8 space-y-2.5">
                 {product.howToUse.map((h) => (
                   <li key={h} className="flex gap-3 text-sm leading-relaxed" style={{ color: `${IVORY}CC` }}>
@@ -240,9 +252,6 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      {/* =========================================================
-          PRODUCT STORY — sourcing / process / quality / use
-      ========================================================== */}
       <section className="py-16 lg:py-24 border-t" style={{ background: GRAPHITE, borderColor: `${IVORY}0D` }}>
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="max-w-2xl mb-10">
@@ -326,9 +335,6 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      {/* =========================================================
-          MORE FROM THE COLLECTION — reuses ShopCollectionCard
-      ========================================================== */}
       {related.length > 0 && (
         <section className="py-16 lg:py-24 border-t" style={{ background: '#1E1C1F', borderColor: `${IVORY}0D` }}>
           <div className="mx-auto max-w-7xl px-6 lg:px-10">

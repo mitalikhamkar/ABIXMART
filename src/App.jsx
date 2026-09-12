@@ -1,3 +1,4 @@
+// src/App.jsx — add the import and one route line inside the existing SiteLayout block
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -7,6 +8,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from '@/pages/Home';
 import Shop from '@/pages/Shop';
 import ProductDetail from '@/pages/ProductDetail';
+import HowToTakeShilajit from '@/pages/HowToTakeShilajit';
 import About from '@/pages/About';
 import Support from '@/pages/Support';
 import Login from '@/pages/Login';
@@ -33,7 +35,6 @@ import Acquisition from '@/admin/sections/Acquisition';
 import ProductPerformance from '@/admin/sections/ProductPerformance';
 import Community from '@/admin/sections/Community';
 import Settings from '@/admin/sections/Settings';
-// Add page imports here
 
 function App() {
   return (
@@ -43,11 +44,11 @@ function App() {
           <Router>
             <ScrollToTop />
             <Routes>
-              {/* Add your page Route elements here */}
               <Route element={<SiteLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/shop/:slug" element={<ProductDetail />} />
+                <Route path="/how-to-take-shilajit" element={<HowToTakeShilajit />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/support" element={<Support />} />
                 <Route path="/login" element={<Login />} />
@@ -57,9 +58,6 @@ function App() {
                 <Route path="/auth/action" element={<AuthAction />} />
               </Route>
 
-              {/* Admin application — separate auth context, no customer
-                  chrome (header/footer/cart/assist). AdminAuthProvider
-                  wraps both /admin/login and the guarded /admin app. */}
               <Route element={<AdminAuthProvider><Outlet /></AdminAuthProvider>}>
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route

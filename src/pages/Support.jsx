@@ -23,6 +23,7 @@ import {
   faqs,
   orderSteps,
   getProductBySlug,
+  ritualBundles,
 } from '@/data/products';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -107,6 +108,7 @@ export default function Support() {
   useEffect(() => {
     const slug = searchParams.get('product');
     const quantityParam = searchParams.get('quantity');
+    const ritualParam = searchParams.get('ritual');
 
     if (!slug) return;
 
@@ -114,10 +116,18 @@ export default function Support() {
 
     if (!product) return;
 
+    const ritual = ritualParam
+      ? ritualBundles.find((b) => b.id === ritualParam)
+      : null;
+
     const quantity =
       quantityParam && Number(quantityParam) > 0
         ? String(Number(quantityParam))
+        : ritual
+        ? String(ritual.jars)
         : '1';
+
+    const interestLabel = ritual ? `${product.name} — ${ritual.name}` : product.name;
 
     setProductContext({
       id: product.id,
@@ -127,9 +137,11 @@ export default function Support() {
 
     setInquiryForm((prev) => ({
       ...prev,
-      productInterest: product.name,
+      productInterest: interestLabel,
       quantity,
-      message: `I am interested in ${product.name}. Quantity requested: ${quantity}.`,
+      message: ritual
+        ? `I am interested in ${product.name} — ${ritual.name}. Quantity requested: ${quantity}.`
+        : `I am interested in ${product.name}. Quantity requested: ${quantity}.`,
     }));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

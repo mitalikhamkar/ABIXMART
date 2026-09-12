@@ -1,15 +1,13 @@
 // src/components/abix/RitualOffers.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ritualBundles } from '@/data/products';
-import { useShop } from '@/lib/ShopContext';
 
-// Warm mineral-stone surface — continues the charcoal/mineral/resin system
-// from DailyRitual's peak tone, with the resin accent doing the
-// highlighting instead of a brown/coffee wash.
+// Warm mineral-stone surface — continues the charcoal/mineral/resin system.
+// CTA now goes straight to the existing Support inquiry form — no modal,
+// no separate name/phone screen.
 export default function RitualOffers() {
-  const { openCheckout } = useShop();
-
   return (
     <section id="offers" className="bg-[#322E2C] py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -43,13 +41,22 @@ export default function RitualOffers() {
               <h3 className="mt-6 font-display text-3xl">{b.name}</h3>
               <p className={`mt-2 text-sm ${b.highlight ? 'text-ivory/75' : 'text-ivory/55'}`}>{b.detail}</p>
 
-              <div className="mt-8 flex items-baseline gap-3">
-                <span className="font-price text-4xl">₹{b.price}</span>
-                <span className={`text-xs ${b.highlight ? 'text-ivory/65' : 'text-ivory/45'}`}>{b.note}</span>
+              {/* Price block: struck-through original, prominent current
+                  price, saving shown but secondary. */}
+              <div className="mt-8">
+                <span className={`block text-sm line-through ${b.highlight ? 'text-ivory/50' : 'text-ivory/40'}`}>
+                  ₹{b.originalPrice.toLocaleString('en-IN')}
+                </span>
+                <div className="mt-1 flex items-baseline gap-3 flex-wrap">
+                  <span className="font-price text-4xl">₹{b.price.toLocaleString('en-IN')}</span>
+                  <span className={`text-xs font-medium ${b.highlight ? 'text-ivory/80' : 'text-gold-light'}`}>
+                    Save ₹{b.saving.toLocaleString('en-IN')}
+                  </span>
+                </div>
               </div>
 
-              <button
-                onClick={() => openCheckout({ name: `${b.name} — Shilajit Pure Resin`, jars: b.jars, price: b.price })}
+              <Link
+                to={`/support?product=shilajit&quantity=${b.quantity}&ritual=${b.id}#inquiry`}
                 className={`group mt-8 h-14 inline-flex items-center justify-center text-[12px] font-semibold tracking-luxe-sm uppercase transition-colors duration-300 ${
                   b.highlight
                     ? 'bg-ivory text-[#151417] hover:bg-[#151417] hover:text-ivory'
@@ -58,7 +65,7 @@ export default function RitualOffers() {
               >
                 Start this ritual
                 <span className="ml-3 transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </button>
+              </Link>
             </motion.div>
           ))}
         </div>

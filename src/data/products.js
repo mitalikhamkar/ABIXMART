@@ -209,10 +209,42 @@ export const upcomingProducts = [
   { name: "Moringa", note: "Leaf of the miracle tree.", status: "Coming Soon" },
 ];
 
+// src/data/products.js — only the ritualBundles export changes; everything else in the file stays as-is
 export const ritualBundles = [
-  { name: "Single Jar", detail: "Begin your ritual.", jars: 1, price: 1099, note: "20g Pure Resin" },
-  { name: "2 Jar Ritual", detail: "For the committed daily practice.", jars: 2, price: 2099, note: "Save ₹99", highlight: true },
-  { name: "3 Jar Ritual", detail: "The full season of wellness.", jars: 3, price: 2999, note: "Save ₹298" },
+  {
+    id: 'single-jar',
+    name: 'Single Jar',
+    detail: 'Begin your ritual.',
+    jars: 1,
+    quantity: 1,
+    originalPrice: 1499,
+    price: 1099,
+    saving: 400,
+    note: 'Save ₹400',
+  },
+  {
+    id: '2-jar-ritual',
+    name: '2 Jar Ritual',
+    detail: 'For the committed daily practice.',
+    jars: 2,
+    quantity: 2,
+    originalPrice: 2999,
+    price: 1999,
+    saving: 1000,
+    note: 'Save ₹1,000',
+    highlight: true,
+  },
+  {
+    id: '3-jar-ritual',
+    name: '3 Jar Ritual',
+    detail: 'The full season of wellness.',
+    jars: 3,
+    quantity: 3,
+    originalPrice: 4499,
+    price: 2999,
+    saving: 1500,
+    note: 'Save ₹1,500',
+  },
 ];
 
 export const faqs = [

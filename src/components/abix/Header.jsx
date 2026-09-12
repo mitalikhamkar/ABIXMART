@@ -53,13 +53,42 @@ export default function Header() {
   const onHome = location.pathname === '/';
   const transparent = onHome && !scrolled;
 
+  // FIX — sticky/scrolled header contrast: the ABIXMART logo asset is a
+  // dark-green wordmark on a transparent background, with no light-bg
+  // variant. Against the previous dark bg-espresso/90 scrolled bar, it
+  // had almost no lightness contrast — and since `transparent` is only
+  // ever true on Home before scrolling, every OTHER route (Shop, About,
+  // Support, ProductDetail) rendered this same low-contrast dark bar
+  // permanently, not just "after scrolling."
+  //
+  // The fix is at the background level, not the logo: the non-transparent
+  // header now uses the project's existing `ivory` brand tone (the same
+  // #F2ECE2 already used as a token elsewhere in the codebase) instead of
+  // a dark bar — giving the unmodified logo the light background it
+  // actually needs, without a box/badge around it. Because the header
+  // background itself flips from dark to light in this state, the nav
+  // links/icons/active-underline/menu icon are switched to charcoal-based
+  // tones ONLY in this branch — the necessary, direct consequence of
+  // fixing contrast this way. The transparent (top-of-Home) state below
+  // is completely unchanged.
+  const headerBgClass = transparent
+    ? 'bg-transparent'
+    : 'bg-[#F2ECE2]/95 backdrop-blur-md border-b border-charcoal/10';
+
+  const navLinkClass = transparent
+    ? 'text-ivory/80 hover:text-ivory'
+    : 'text-charcoal/65 hover:text-charcoal';
+
+  const navLinkActiveClass = transparent ? 'text-ivory' : 'text-charcoal';
+  const navUnderlineClass = transparent ? 'bg-gold-light' : 'bg-resin';
+  const iconClass = transparent
+    ? 'text-ivory/80 hover:text-ivory'
+    : 'text-charcoal/65 hover:text-charcoal';
+  const menuIconClass = transparent ? 'text-ivory' : 'text-charcoal';
+
   return (
     <>
-      <header
-        className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${
-          transparent ? 'bg-transparent' : 'bg-espresso/90 backdrop-blur-md border-b border-ivory/10'
-        }`}
-      >
+      <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${headerBgClass}`}>
         <nav className="mx-auto max-w-7xl px-6 lg:px-10 h-16 lg:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center" aria-label="ABIXMART home">
             <img
@@ -76,15 +105,15 @@ export default function Header() {
                 <Link
                   key={l.to}
                   to={l.to}
-                  className={`relative text-[13px] font-medium tracking-wide transition-colors duration-300 ${
-                    transparent ? 'text-ivory/80 hover:text-ivory' : 'text-ivory/70 hover:text-ivory'
-                  } ${active ? 'text-ivory' : ''}`}
+                  className={`relative text-[13px] font-medium tracking-wide transition-colors duration-300 ${navLinkClass} ${
+                    active ? navLinkActiveClass : ''
+                  }`}
                 >
                   {l.label}
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute -bottom-1.5 left-0 h-px w-full bg-gold-light"
+                      className={`absolute -bottom-1.5 left-0 h-px w-full ${navUnderlineClass}`}
                     />
                   )}
                 </Link>
@@ -95,14 +124,14 @@ export default function Header() {
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={openSearch}
-              className="h-10 w-10 inline-flex items-center justify-center transition-colors text-ivory/80 hover:text-ivory"
+              className={`h-10 w-10 inline-flex items-center justify-center transition-colors ${iconClass}`}
               aria-label="Search"
             >
               <Search size={19} />
             </button>
             <Link
               to="/shop"
-              className="relative h-10 w-10 inline-flex items-center justify-center transition-colors text-ivory/80 hover:text-ivory"
+              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${iconClass}`}
               aria-label="Wishlist"
             >
               <Heart size={19} />
@@ -114,7 +143,7 @@ export default function Header() {
             </Link>
             <button
               onClick={openCart}
-              className="relative h-10 w-10 inline-flex items-center justify-center transition-colors text-ivory/80 hover:text-ivory"
+              className={`relative h-10 w-10 inline-flex items-center justify-center transition-colors ${iconClass}`}
               aria-label="Cart"
             >
               <ShoppingBag size={19} />
@@ -129,7 +158,7 @@ export default function Header() {
                 <button
                   onClick={() => setAccountMenuOpen((v) => !v)}
                   aria-label="Account menu"
-                  className="ml-2 h-9 w-9 rounded-full bg-ivory text-charcoal font-display text-sm flex items-center justify-center hover:bg-resin hover:text-ivory transition-colors duration-300"
+                  className="ml-2 h-9 w-9 rounded-full bg-ivory text-charcoal font-display text-sm flex items-center justify-center ring-1 ring-charcoal/10 hover:bg-resin hover:text-ivory hover:ring-resin transition-colors duration-300"
                 >
                   {initial}
                 </button>
@@ -171,7 +200,7 @@ export default function Header() {
             )}
             <button
               onClick={() => setOpen((v) => !v)}
-              className="md:hidden h-10 w-10 inline-flex items-center justify-center text-ivory"
+              className={`md:hidden h-10 w-10 inline-flex items-center justify-center transition-colors ${menuIconClass}`}
               aria-label="Menu"
             >
               {open ? <X size={22} /> : <Menu size={22} />}
@@ -180,24 +209,16 @@ export default function Header() {
         </nav>
       </header>
 
-      {/* Mobile menu — background is the same deep charcoal → mineral-brown
-          gradient used elsewhere in the ABIXMART system (not flat
-          bg-espresso, which read as plain coffee-brown). Inactive links
-          use text-ivory/55 (matching this file's existing opacity-step
-          convention) instead of an undefined `stone` color that had no
-          contrast against this background. Everything else — structure,
-          buttons, routing, auth — is unchanged. */}
+      {/* Mobile menu — full-screen overlay, unrelated to the header's own
+          background/contrast fix above; doesn't render the logo again,
+          so it isn't part of this scope. Unchanged. */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-30 md:hidden pt-16"
-            style={{
-              background: 'linear-gradient(180deg, #17151A 0%, #1E1B1D 55%, #2A2320 100%)',
-            }}
+            className="fixed inset-0 z-30 bg-espresso md:hidden pt-16"
           >
             <div className="px-6 py-6 flex flex-col">
               {navLinks.map((l, i) => (
@@ -209,8 +230,8 @@ export default function Header() {
                 >
                   <Link
                     to={l.to}
-                    className={`block py-4 font-display text-3xl border-b border-ivory/10 transition-colors duration-300 ${
-                      location.pathname === l.to ? 'text-gold-light' : 'text-ivory/55 hover:text-ivory'
+                    className={`block py-4 font-display text-3xl border-b border-ivory/10 ${
+                      location.pathname === l.to ? 'text-gold-light' : 'text-ivory/70'
                     }`}
                   >
                     {l.label}
